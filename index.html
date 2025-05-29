@@ -69,6 +69,8 @@
                 gap: 44px;
                 margin-top: 0;
                 flex-wrap: wrap;
+                overflow-x: auto;
+                padding-bottom: 12px;
             }
             .org-dept-wrapper {
                 display: flex;
@@ -127,65 +129,92 @@
                 font-weight: 500;
                 margin-left: 7px;
             }
-            /* 멤버 아코디언 (박스 바깥) */
             .org-member-list {
-                overflow: visible; /* 수정: hidden → visible */
-                max-height: 0;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+                gap: 8px 10px;
+                align-items: stretch;
+                width: 100%;
+                min-width: 160px;
+                max-width: 245px;
                 opacity: 0;
+                max-height: 0;
                 transition: max-height 0.36s cubic-bezier(0.44, 0.14, 0.53, 1),
                     opacity 0.24s;
-                width: 100%;
                 margin: 0;
-                padding: 0 0 0 12px;
+                padding: 0;
                 text-align: left;
-                display: flex;
-                flex-direction: column;
-                gap: 1.5px;
-                align-items: flex-start;
-                position: relative; /* 추가: 툴팁 상대 위치 */
+                position: relative;
                 z-index: 1;
+                box-sizing: border-box;
             }
             .org-dept.open + .org-member-list {
                 opacity: 1;
                 max-height: 600px;
                 margin: 8px 0 0 0;
             }
+
+            /* ---- 멤버 플립 효과 ---- */
             .org-member {
                 background: #f7fbff;
-                border-radius: 7px;
+                border-radius: 8px;
                 color: #374660;
-                font-size: 0.98em;
-                padding: 6px 8px;
-                margin: 1.5px 0;
-                transition: background 0.17s;
+                font-size: 0.97em;
+                padding: 8px 10px;
                 cursor: pointer;
                 animation: fadeIn 0.75s cubic-bezier(0.71, 0.11, 0.42, 1.19);
-                position: relative;
-            }
-            /* 툴팁 스타일 */
-            .org-member-tooltip {
-                visibility: hidden;
-                opacity: 0;
-                position: absolute;
-                left: 50%;
-                top: 100%; /* 아래로 배치 */
-                transform: translateX(-50%);
-                margin-top: 10px; /* 아래로 띄움 */
-                background: #205288;
-                color: #fff;
-                font-size: 0.97em;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 white-space: nowrap;
-                padding: 7px 14px;
-                border-radius: 8px;
-                z-index: 100;
-                pointer-events: none;
-                transition: opacity 0.2s;
-                box-shadow: 0 3px 12px rgba(32, 82, 136, 0.14);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 100%;
+                min-width: 0;
+                max-width: 100%;
+                box-sizing: border-box;
+                font-weight: 500;
+                perspective: 400px;
+                position: relative;
+                transition: background 0.15s;
             }
-            .org-member:hover .org-member-tooltip,
-            .org-member:focus .org-member-tooltip {
-                visibility: visible;
-                opacity: 1;
+            .org-member-inner {
+                display: inline-block;
+                position: relative;
+                width: 100%;
+                min-width: 0;
+                max-width: 100%;
+                height: 1.7em;
+                transition: transform 0.35s cubic-bezier(0.77, 0, 0.18, 1);
+                transform-style: preserve-3d;
+            }
+            .org-member:hover .org-member-inner,
+            .org-member:focus .org-member-inner {
+                transform: rotateY(180deg);
+            }
+            .org-member .front,
+            .org-member .back {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                backface-visibility: hidden;
+                transition: opacity 0.1s;
+            }
+            .org-member .front {
+                z-index: 2;
+            }
+            .org-member .back {
+                z-index: 3;
+                transform: rotateY(180deg);
+                color: #205288;
+                background: #eaf6fd;
+                border-radius: 8px;
+                font-weight: 600;
             }
             .org-member:focus {
                 outline: 1.5px solid #299ad5;
@@ -226,10 +255,11 @@
             }
             @media (max-width: 700px) {
                 .org-level {
-                    flex-direction: column;
-                    gap: 0;
+                    flex-wrap: nowrap;
+                    overflow-x: auto;
                 }
                 .org-dept {
+                    min-width: 220px;
                     margin-top: 20px;
                 }
             }
@@ -296,7 +326,7 @@
                             { name: "신유정 (매니져)", phone: "010-1234-0026" },
                             { name: "형성인 (사원)", phone: "010-1234-0027" },
                             {
-                                name: "신선경 (사원, 재택)",
+                                name: "신선경 (사원,재택)",
                                 phone: "010-1234-0028",
                             },
                         ],
@@ -404,17 +434,15 @@
                 dept.members.forEach((member) => {
                     const memItem = document.createElement("div");
                     memItem.className = "org-member";
-                    memItem.textContent = member.name;
-
-                    // 툴팁
-                    const tooltip = document.createElement("span");
-                    tooltip.className = "org-member-tooltip";
-                    tooltip.textContent = member.phone;
-                    memItem.appendChild(tooltip);
-
-                    // 접근성: 포커스 시도구현
                     memItem.tabIndex = 0;
 
+                    // 플립구조: 이름(front), 폰번호(back)
+                    memItem.innerHTML = `
+                      <span class="org-member-inner">
+                        <span class="front">${member.name}</span>
+                        <span class="back">${member.phone}</span>
+                      </span>
+                    `;
                     memDiv.appendChild(memItem);
                 });
 
