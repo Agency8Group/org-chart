@@ -96,6 +96,8 @@
                 align-items: center;
                 cursor: pointer;
                 transition: box-shadow 0.25s;
+                position: relative;
+                z-index: 10; /* 기존 1에서 10으로 증가 */
             }
             .org-dept.open {
                 box-shadow: 0 6px 32px rgba(80, 120, 230, 0.18);
@@ -195,6 +197,7 @@
                 left: -8px;
                 right: -8px;
                 z-index: -1;
+                pointer-events: none;
             }
 
             /* 모바일용 - 툴팁 아래로 띄우기 (필요시) */
