@@ -18,6 +18,7 @@
                 margin: 0 auto 52px auto;
                 padding: 30px 0 0 0;
                 position: relative;
+                max-width: 1200px;
             }
             .org-header-action {
                 position: absolute;
@@ -59,10 +60,9 @@
             }
             .org-level {
                 display: flex;
-                flex-direction: row;
+                flex-direction: row; /* PC: 가로 배치 */
                 justify-content: center;
                 gap: 36px;
-                margin-top: 0;
                 flex-wrap: wrap;
                 overflow-x: auto;
                 padding-bottom: 20px;
@@ -143,57 +143,53 @@
                 max-height: 600px;
                 margin-top: 8px;
             }
+            /* ==== 멤버 스타일 ==== */
             .org-member {
                 background: #f7fbff;
                 border-radius: 8px;
                 color: #374660;
-                font-size: 0.9em;
-                padding: 6px 8px;
+                font-size: 0.97em;
+                padding: 7px 8px;
                 text-align: center;
                 white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
+                overflow: visible;
                 position: relative;
+                cursor: pointer;
             }
-            .org-member a {
-                text-decoration: none;
-                color: inherit;
-                display: block;
-            }
-
-            /* ✅ Tooltip 스타일 */
+            /* ==== 툴팁 스타일 ==== */
             .org-member .tooltip {
                 visibility: hidden;
                 opacity: 0;
-                background-color: #333;
+                background-color: #2646be;
                 color: #fff;
+                font-weight: bold;
                 text-align: center;
-                padding: 4px 8px;
-                border-radius: 4px;
+                padding: 4px 10px;
+                border-radius: 6px;
                 position: absolute;
-                bottom: 120%;
+                bottom: 110%;
                 left: 50%;
                 transform: translateX(-50%);
-                z-index: 999;
-                font-size: 0.75em;
+                z-index: 99;
+                font-size: 0.93em;
+                min-width: 110px;
                 white-space: nowrap;
-                transition: opacity 0.3s ease;
                 pointer-events: none;
+                transition: opacity 0.18s;
             }
-            .org-member:hover .tooltip {
+            .org-member:hover .tooltip,
+            .org-member.show-tooltip .tooltip {
                 visibility: visible;
                 opacity: 1;
             }
-
+            /* 모바일용 - 툴팁 아래로 띄우기 (필요시) */
             @media (max-width: 600px) {
-                .org-dept {
-                    min-width: 180px;
-                    padding: 10px;
-                    margin-top: 14px;
-                }
-                .org-btn-allopen {
-                    padding: 6px 14px;
-                    font-size: 0.9em;
+                .org-level {
+                    flex-direction: column; /* 모바일: 세로(한줄) 배치 */
+                    gap: 12px;
+                    align-items: stretch;
+                    overflow-x: visible;
+                    padding-bottom: 0;
                 }
             }
         </style>
@@ -208,7 +204,7 @@
             <div class="org-tree" id="org-tree"></div>
         </div>
         <script>
-            // 데이터(멤버에 휴대폰 추가)
+            // 전체 조직 데이터(생략없이)
             const orgData = {
                 root: { name: "대표이사: 강필구", floor: "2F" },
                 depts: [
@@ -326,15 +322,16 @@
                 ],
             };
 
+            // DOM 렌더링
             const tree = document.getElementById("org-tree");
-            tree.innerHTML = `<div class="org-center">
-            <span>${orgData.root.name}</span><br>
-            <span class="org-dept-floor">${orgData.root.floor}</span>
-        </div>`;
-
+            tree.innerHTML = `
+            <div class="org-center">
+                <span>${orgData.root.name}</span><br>
+                <span class="org-dept-floor">${orgData.root.floor}</span>
+            </div>
+        `;
             const levelDiv = document.createElement("div");
             levelDiv.className = "org-level";
-
             const allDeptDivs = [];
 
             orgData.depts.forEach((dept) => {
@@ -364,10 +361,9 @@
                     const memItem = document.createElement("div");
                     memItem.className = "org-member";
                     memItem.innerHTML = `
-                    <a href="tel:${member.phone.replace(/-/g, "")}">
-                        ${member.name}
-                        <span class="tooltip">${member.phone}</span>
-                    </a>`;
+                    ${member.name}
+                    <span class="tooltip">${member.phone}</span>
+                `;
                     memDiv.appendChild(memItem);
                 });
 
@@ -392,6 +388,32 @@
                         ? "전체 닫기"
                         : "한번에 확인하기";
                 });
+
+            // 모바일/터치 디바이스 툴팁 동작(탭하면 번호 표시, 다른 멤버 누르면 이전 툴팁 닫힘)
+            function isTouchDevice() {
+                return (
+                    "ontouchstart" in window ||
+                    (window.DocumentTouch &&
+                        document instanceof DocumentTouch) ||
+                    navigator.maxTouchPoints > 0 ||
+                    window.matchMedia("(pointer: coarse)").matches
+                );
+            }
+            if (isTouchDevice()) {
+                tree.addEventListener("click", function (e) {
+                    const members = document.querySelectorAll(".org-member");
+                    members.forEach((m) => m.classList.remove("show-tooltip"));
+                    const member = e.target.closest(".org-member");
+                    if (member) {
+                        member.classList.add("show-tooltip");
+                        // 2초 후 자동 툴팁 닫기
+                        setTimeout(
+                            () => member.classList.remove("show-tooltip"),
+                            2000
+                        );
+                    }
+                });
+            }
         </script>
     </body>
 </html>
