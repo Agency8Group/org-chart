@@ -33,10 +33,9 @@
                 outline: none;
                 border-radius: 8px;
                 padding: 8px 22px;
-                font-size: 1.01em;
+                font-size: 1em;
                 box-shadow: 0 3px 14px rgba(48, 95, 190, 0.12);
                 cursor: pointer;
-                letter-spacing: 0.01em;
                 transition: background 0.17s;
             }
             .org-btn-allopen:hover {
@@ -50,29 +49,37 @@
             .org-center {
                 background: linear-gradient(95deg, #2646be 60%, #24a2e0 100%);
                 color: #fff;
-                font-size: 1.19em;
+                font-size: 1.1em;
                 font-weight: bold;
                 border-radius: 15px;
                 box-shadow: 0 4px 32px rgba(45, 90, 180, 0.13);
-                padding: 23px 42px 19px 42px;
-                min-width: 260px;
+                padding: 20px 36px;
+                min-width: 240px;
                 text-align: center;
-                letter-spacing: -0.01em;
-                position: relative;
-                z-index: 2;
-                animation: fadeInDown 0.6s cubic-bezier(0.6, 0.07, 0.3, 1.02);
             }
             .org-level {
                 display: flex;
                 flex-direction: row;
                 justify-content: center;
-                gap: 44px;
+                gap: 36px;
                 margin-top: 0;
                 flex-wrap: wrap;
                 overflow-x: auto;
-                padding-bottom: 12px;
+                padding-bottom: 20px;
+                scroll-snap-type: x mandatory;
+                position: relative;
+            }
+            .org-level::after {
+                content: "← 좌우로 스크롤 →";
+                font-size: 0.8em;
+                color: #aaa;
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
             }
             .org-dept-wrapper {
+                scroll-snap-align: start;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -81,186 +88,113 @@
                 background: #fff;
                 border-radius: 14px;
                 box-shadow: 0 2px 16px rgba(80, 120, 230, 0.1);
-                min-width: 178px;
-                max-width: 245px;
-                padding: 15px 12px 12px 12px;
-                margin-top: 44px;
+                min-width: 200px;
+                max-width: 240px;
+                padding: 12px;
+                margin-top: 20px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                text-align: center;
-                position: relative;
+                cursor: pointer;
                 transition: box-shadow 0.25s;
-                animation: fadeInUp 0.7s cubic-bezier(0.54, 0.02, 0.22, 1.1);
-                z-index: 1;
             }
-            .org-dept:active,
             .org-dept.open {
                 box-shadow: 0 6px 32px rgba(80, 120, 230, 0.18);
             }
             .org-dept-floor {
-                font-size: 0.95em;
+                font-size: 0.9em;
                 font-weight: 600;
                 color: #24a2e0;
                 background: #eaf6fd;
                 border-radius: 6px;
-                padding: 2px 13px 2px 13px;
-                display: inline-block;
+                padding: 2px 10px;
                 margin-bottom: 6px;
-                letter-spacing: 0.03em;
-                animation: fadeIn 1s cubic-bezier(0.7, 0.15, 0.35, 1.2);
             }
             .org-dept-title {
                 font-weight: 600;
                 color: #205288;
-                font-size: 1.07em;
+                font-size: 1em;
                 margin-bottom: 3px;
-                letter-spacing: -0.01em;
-                user-select: none;
-                cursor: pointer;
-                outline: none;
+                text-align: center;
             }
             .org-dept-count {
                 color: #2473d1;
                 background: #e9f2fe;
-                font-size: 0.93em;
+                font-size: 0.9em;
                 border-radius: 99px;
-                padding: 1.2px 8px;
+                padding: 1px 8px;
                 font-weight: 500;
-                margin-left: 7px;
+                margin-left: 6px;
             }
             .org-member-list {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
                 gap: 8px 10px;
                 align-items: stretch;
                 width: 100%;
-                min-width: 160px;
-                max-width: 245px;
                 opacity: 0;
                 max-height: 0;
-                transition: max-height 0.36s cubic-bezier(0.44, 0.14, 0.53, 1),
-                    opacity 0.24s;
+                transition: max-height 0.3s, opacity 0.2s;
                 margin: 0;
                 padding: 0;
-                text-align: left;
-                position: relative;
-                z-index: 1;
                 box-sizing: border-box;
             }
             .org-dept.open + .org-member-list {
                 opacity: 1;
                 max-height: 600px;
-                margin: 8px 0 0 0;
+                margin-top: 8px;
             }
-
-            /* ---- 멤버 플립 효과 ---- */
             .org-member {
                 background: #f7fbff;
                 border-radius: 8px;
                 color: #374660;
-                font-size: 0.97em;
-                padding: 8px 10px;
-                cursor: pointer;
-                animation: fadeIn 0.75s cubic-bezier(0.71, 0.11, 0.42, 1.19);
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                font-size: 0.9em;
+                padding: 6px 8px;
+                text-align: center;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                width: 100%;
-                min-width: 0;
-                max-width: 100%;
-                box-sizing: border-box;
-                font-weight: 500;
-                perspective: 400px;
                 position: relative;
-                transition: background 0.15s;
             }
-            .org-member-inner {
-                display: inline-block;
-                position: relative;
-                width: 100%;
-                min-width: 0;
-                max-width: 100%;
-                height: 1.7em;
-                transition: transform 0.35s cubic-bezier(0.77, 0, 0.18, 1);
-                transform-style: preserve-3d;
+            .org-member a {
+                text-decoration: none;
+                color: inherit;
+                display: block;
             }
-            .org-member:hover .org-member-inner,
-            .org-member:focus .org-member-inner {
-                transform: rotateY(180deg);
-            }
-            .org-member .front,
-            .org-member .back {
-                display: flex;
-                align-items: center;
-                justify-content: center;
+
+            /* ✅ Tooltip 스타일 */
+            .org-member .tooltip {
+                visibility: hidden;
+                opacity: 0;
+                background-color: #333;
+                color: #fff;
+                text-align: center;
+                padding: 4px 8px;
+                border-radius: 4px;
                 position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                backface-visibility: hidden;
-                transition: opacity 0.1s;
+                bottom: 120%;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 999;
+                font-size: 0.75em;
+                white-space: nowrap;
+                transition: opacity 0.3s ease;
+                pointer-events: none;
             }
-            .org-member .front {
-                z-index: 2;
+            .org-member:hover .tooltip {
+                visibility: visible;
+                opacity: 1;
             }
-            .org-member .back {
-                z-index: 3;
-                transform: rotateY(180deg);
-                color: #205288;
-                background: #eaf6fd;
-                border-radius: 8px;
-                font-weight: 600;
-            }
-            .org-member:focus {
-                outline: 1.5px solid #299ad5;
-            }
-            @keyframes fadeInUp {
-                0% {
-                    opacity: 0;
-                    transform: translateY(35px);
-                }
-                100% {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            @keyframes fadeIn {
-                0% {
-                    opacity: 0;
-                }
-                100% {
-                    opacity: 1;
-                }
-            }
-            @keyframes fadeInDown {
-                0% {
-                    opacity: 0;
-                    transform: translateY(-35px);
-                }
-                100% {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            @media (max-width: 900px) {
-                .org-level {
-                    flex-wrap: wrap;
-                    gap: 18px;
-                }
-            }
-            @media (max-width: 700px) {
-                .org-level {
-                    flex-wrap: nowrap;
-                    overflow-x: auto;
-                }
+
+            @media (max-width: 600px) {
                 .org-dept {
-                    min-width: 220px;
-                    margin-top: 20px;
+                    min-width: 180px;
+                    padding: 10px;
+                    margin-top: 14px;
+                }
+                .org-btn-allopen {
+                    padding: 6px 14px;
+                    font-size: 0.9em;
                 }
             }
         </style>
@@ -395,90 +329,70 @@
 
             const tree = document.getElementById("org-tree");
             tree.innerHTML = `<div class="org-center">
-            <span>${orgData.root.name}</span>
+            <span>${orgData.root.name}</span><br>
             <span class="org-dept-floor">${orgData.root.floor}</span>
         </div>`;
 
-            // 부서들
             const levelDiv = document.createElement("div");
             levelDiv.className = "org-level";
 
-            // 펼침/접힘 제어 참조 저장
             const allDeptDivs = [];
 
             orgData.depts.forEach((dept) => {
-                // 1. 래퍼
                 const wrapperDiv = document.createElement("div");
                 wrapperDiv.className = "org-dept-wrapper";
 
-                // 2. 박스 (타이틀+층만)
                 const deptDiv = document.createElement("div");
                 deptDiv.className = "org-dept";
 
-                // 층 정보
                 const floorDiv = document.createElement("div");
                 floorDiv.className = "org-dept-floor";
                 floorDiv.innerText = dept.floor;
                 deptDiv.appendChild(floorDiv);
 
-                // 타이틀
                 const titleDiv = document.createElement("div");
                 titleDiv.className = "org-dept-title";
-                titleDiv.setAttribute("tabindex", 0); // 접근성
                 titleDiv.innerHTML = `${dept.title}<span class="org-dept-count">${dept.count}명</span>`;
                 deptDiv.appendChild(titleDiv);
 
-                // 3. 멤버리스트(박스 바깥)
+                deptDiv.addEventListener("click", () => {
+                    deptDiv.classList.toggle("open");
+                });
+
                 const memDiv = document.createElement("div");
                 memDiv.className = "org-member-list";
                 dept.members.forEach((member) => {
                     const memItem = document.createElement("div");
                     memItem.className = "org-member";
-                    memItem.tabIndex = 0;
-
-                    // 플립구조: 이름(front), 폰번호(back)
                     memItem.innerHTML = `
-                      <span class="org-member-inner">
-                        <span class="front">${member.name}</span>
-                        <span class="back">${member.phone}</span>
-                      </span>
-                    `;
+                    <a href="tel:${member.phone.replace(/-/g, "")}">
+                        ${member.name}
+                        <span class="tooltip">${member.phone}</span>
+                    </a>`;
                     memDiv.appendChild(memItem);
                 });
 
-                // title 클릭: 박스만 open, 멤버는 바깥에서 전개
-                titleDiv.addEventListener("click", function () {
-                    deptDiv.classList.toggle("open");
-                });
-                titleDiv.addEventListener("keypress", function (e) {
-                    if (e.key === "Enter" || e.key === " ") {
-                        deptDiv.classList.toggle("open");
-                    }
-                });
-
-                // 구조 조립
                 wrapperDiv.appendChild(deptDiv);
                 wrapperDiv.appendChild(memDiv);
                 levelDiv.appendChild(wrapperDiv);
-
                 allDeptDivs.push(deptDiv);
             });
+
             tree.appendChild(levelDiv);
 
-            // "한번에 확인하기" 버튼
-            const allOpenBtn = document.getElementById("orgAllOpenBtn");
-            let allOpen = false; // 현재 전체 열림 여부
-
-            allOpenBtn.addEventListener("click", function () {
-                allOpen = !allOpen;
-                allDeptDivs.forEach((div) => {
-                    if (allOpen) div.classList.add("open");
-                    else div.classList.remove("open");
+            document
+                .getElementById("orgAllOpenBtn")
+                .addEventListener("click", function () {
+                    const isAnyClosed = allDeptDivs.some(
+                        (div) => !div.classList.contains("open")
+                    );
+                    allDeptDivs.forEach((div) => {
+                        div.classList.toggle("open", isAnyClosed);
+                    });
+                    this.textContent = isAnyClosed
+                        ? "전체 닫기"
+                        : "한번에 확인하기";
                 });
-                allOpenBtn.textContent = allOpen
-                    ? "전체 접기"
-                    : "한번에 확인하기";
-            });
         </script>
     </body>
 </html>
