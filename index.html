@@ -206,7 +206,7 @@
         <script>
             // 전체 조직 데이터(생략없이)
             const orgData = {
-                root: { name: "대표이사: 강필구", floor: "2F" },
+                root: { name: "대표이사 강필구", floor: "" },
                 depts: [
                     {
                         title: "경영관리실",
@@ -325,11 +325,15 @@
             // DOM 렌더링
             const tree = document.getElementById("org-tree");
             tree.innerHTML = `
-            <div class="org-center">
-                <span>${orgData.root.name}</span><br>
-                <span class="org-dept-floor">${orgData.root.floor}</span>
-            </div>
-        `;
+         <div class="org-center">
+        <span>${orgData.root.name}</span>
+        ${
+            orgData.root.floor
+                ? `<br><span class="org-dept-floor">${orgData.root.floor}</span>`
+                : ""
+        }
+    </div>
+`;
             const levelDiv = document.createElement("div");
             levelDiv.className = "org-level";
             const allDeptDivs = [];
