@@ -96,6 +96,8 @@
                 align-items: center;
                 cursor: pointer;
                 transition: box-shadow 0.25s;
+                position: relative;
+                z-index: 10; /* 기존 1에서 10으로 증가 */
             }
             .org-dept.open {
                 box-shadow: 0 6px 32px rgba(80, 120, 230, 0.18);
@@ -182,14 +184,68 @@
                 visibility: visible;
                 opacity: 1;
             }
+            .org-dept {
+                position: relative;
+                z-index: 1; /* 클릭 방해 방지 */
+            }
+
+            .org-dept::before {
+                content: "";
+                position: absolute;
+                top: -8px;
+                bottom: -8px;
+                left: -8px;
+                right: -8px;
+                z-index: -1;
+                pointer-events: none;
+            }
+
             /* 모바일용 - 툴팁 아래로 띄우기 (필요시) */
-            @media (max-width: 600px) {
-                .org-level {
-                    flex-direction: column; /* 모바일: 세로(한줄) 배치 */
-                    gap: 12px;
-                    align-items: stretch;
-                    overflow-x: visible;
-                    padding-bottom: 0;
+            @media (prefers-color-scheme: white) {
+                body {
+                    background-color: #1a1a1a;
+                    color: #f0f0f0;
+                }
+                .org-btn-allopen {
+                    background: linear-gradient(
+                        92deg,
+                        #446ee7 60%,
+                        #2fb8ff 100%
+                    );
+                    color: #ffffff;
+                }
+                .org-btn-allopen:hover {
+                    background: linear-gradient(
+                        92deg,
+                        #3058c8 60%,
+                        #1ca1e0 100%
+                    );
+                }
+
+                .org-center,
+                .org-dept,
+                .org-member {
+                    background-color: #2a2a2a;
+                    color: #e0e0e0;
+                }
+
+                .org-dept-floor {
+                    background-color: #3a3a3a;
+                    color: #71c9ff;
+                }
+
+                .org-dept-count {
+                    background-color: #3c4c70;
+                    color: #ffffff;
+                }
+
+                .tooltip {
+                    background-color: #4a6ff0;
+                }
+            }
+            @media (max-width: 768px) {
+                .org-btn-allopen {
+                    display: none;
                 }
             }
         </style>
