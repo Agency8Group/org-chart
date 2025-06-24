@@ -328,10 +328,16 @@
             <div class="org-tree" id="org-tree"></div>
         </div>
         <script>
-            // 전체 조직 데이터(생략없이)
+            // ===== 조직도 데이터 =====
+            // 💡 순서 변경 방법:
+            // 1. 부서 순서: depts 배열에서 항목 순서를 바꾸세요
+            // 2. 멤버 순서: 각 부서의 members 배열에서 항목 순서를 바꾸세요
+            // 3. 인원 수는 자동으로 계산되므로 count는 수정하지 마세요
+
             const orgData = {
                 root: { name: "대표이사 강필구", floor: "" },
                 depts: [
+                    // === 1순위: 경영진 ===
                     {
                         title: "경영관리실",
                         count: 7,
@@ -346,6 +352,7 @@
                             { name: "최혁준 (사원)", phone: "010-1234-0007" },
                         ],
                     },
+                    // === 2순위: 전략부서 ===
                     {
                         title: "전략기획실",
                         count: 3,
@@ -356,6 +363,7 @@
                             { name: "지윤환 (수습)", phone: "010-1234-0010" },
                         ],
                     },
+                    // === 3순위: 핵심 사업부 ===
                     {
                         title: "브랜드사업부(압타밀)",
                         count: 18,
@@ -363,11 +371,12 @@
                         members: [
                             { name: "김정준 (본부장)", phone: "010-1234-0011" },
                             { name: "김민욱 (팀장)", phone: "010-1234-0012" },
+                            { name: "김영훈 (파트장)", phone: "010-1234-0017" },
                             { name: "김예진 (과장)", phone: "010-1234-0013" },
                             { name: "김은정 (대리)", phone: "010-1234-0014" },
                             { name: "박효진 (대리)", phone: "010-1234-0015" },
                             { name: "최은영 (대리)", phone: "010-1234-0016" },
-                            { name: "김영훈 (파트장)", phone: "010-1234-0017" },
+                            { name: "신유정 (매니져)", phone: "010-1234-0026" },
                             { name: "최아리찬 (사원)", phone: "010-1234-0018" },
                             { name: "이산하 (사원)", phone: "010-1234-0019" },
                             { name: "서정민 (수습)", phone: "010-1234-0020" },
@@ -376,7 +385,7 @@
                             { name: "박종호 (수습)", phone: "010-1234-0023" },
                             { name: "이지혜 (사원)", phone: "010-1234-0024" },
                             { name: "송예진 (사원)", phone: "010-1234-0025" },
-                            { name: "신유정 (매니져)", phone: "010-1234-0026" },
+
                             { name: "형성인 (사원)", phone: "010-1234-0027" },
                             {
                                 name: "신선경 (사원,재택)",
@@ -384,6 +393,7 @@
                             },
                         ],
                     },
+                    // === 4순위: 사업부 2 ===
                     {
                         title: "브랜드사업부(드리미)",
                         count: 15,
@@ -406,6 +416,7 @@
                             { name: "이다현 (사원)", phone: "010-1234-0043" },
                         ],
                     },
+                    // === 5순위: 지원부서 ===
                     {
                         title: "컨텐츠팀",
                         count: 4,
@@ -417,6 +428,7 @@
                             { name: "박규원 (사원)", phone: "010-1234-0047" },
                         ],
                     },
+                    // === 6순위: 고객지원 ===
                     {
                         title: "고객지원부",
                         count: 6,
@@ -430,6 +442,7 @@
                             { name: "김유미 (수습)", phone: "010-1234-0053" },
                         ],
                     },
+                    // === 7순위: 외부부서 ===
                     {
                         title: "물류센터(남양주/용인)",
                         count: 6,
@@ -446,18 +459,26 @@
                 ],
             };
 
-            // DOM 렌더링
+            // ===== 자동 인원 수 계산 함수 =====
+            function updateMemberCounts() {
+                orgData.depts.forEach((dept) => {
+                    dept.count = dept.members.length;
+                });
+            }
+
+            // ===== DOM 렌더링 =====
             const tree = document.getElementById("org-tree");
             tree.innerHTML = `
-         <div class="org-center">
-        <span>${orgData.root.name}</span>
-        ${
-            orgData.root.floor
-                ? `<br><span class="org-dept-floor">${orgData.root.floor}</span>`
-                : ""
-        }
-    </div>
-`;
+                <div class="org-center">
+                    <span>${orgData.root.name}</span>
+                    ${
+                        orgData.root.floor
+                            ? `<br><span class="org-dept-floor">${orgData.root.floor}</span>`
+                            : ""
+                    }
+                </div>
+            `;
+
             const levelDiv = document.createElement("div");
             levelDiv.className = "org-level";
             const allDeptDivs = [];
@@ -489,9 +510,9 @@
                     const memItem = document.createElement("div");
                     memItem.className = "org-member";
                     memItem.innerHTML = `
-                    ${member.name}
-                    <span class="tooltip">${member.phone}</span>
-                `;
+                        ${member.name}
+                        <span class="tooltip">${member.phone}</span>
+                    `;
                     memDiv.appendChild(memItem);
                 });
 
@@ -503,6 +524,7 @@
 
             tree.appendChild(levelDiv);
 
+            // ===== 이벤트 리스너 =====
             document
                 .getElementById("orgAllOpenBtn")
                 .addEventListener("click", function () {
@@ -517,7 +539,7 @@
                         : "한번에 확인하기";
                 });
 
-            // 모바일/터치 디바이스 툴팁 동작(탭하면 번호 표시, 다른 멤버 누르면 이전 툴팁 닫힘)
+            // ===== 모바일 툴팁 처리 =====
             function isTouchDevice() {
                 return (
                     "ontouchstart" in window ||
@@ -527,6 +549,7 @@
                     window.matchMedia("(pointer: coarse)").matches
                 );
             }
+
             if (isTouchDevice()) {
                 tree.addEventListener("click", function (e) {
                     const members = document.querySelectorAll(".org-member");
@@ -534,7 +557,6 @@
                     const member = e.target.closest(".org-member");
                     if (member) {
                         member.classList.add("show-tooltip");
-                        // 2초 후 자동 툴팁 닫기
                         setTimeout(
                             () => member.classList.remove("show-tooltip"),
                             2000
@@ -542,6 +564,9 @@
                     }
                 });
             }
+
+            // ===== 초기화 =====
+            updateMemberCounts();
         </script>
     </body>
 </html>
