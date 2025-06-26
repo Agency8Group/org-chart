@@ -91,6 +91,16 @@
                 top: 28px;
                 z-index: 10;
             }
+            .org-total-count {
+                position: absolute;
+                left: 28px;
+                top: 28px;
+                z-index: 10;
+                color: #1e40af;
+                font-weight: 600;
+                font-size: 1.1em;
+                transition: all 0.3s ease;
+            }
             .org-btn-allopen {
                 background: linear-gradient(135deg, #1e40af 70%, #10b981 100%);
                 color: #fff;
@@ -135,7 +145,12 @@
                 min-width: 240px;
                 text-align: center;
                 position: relative;
-                overflow: hidden;
+                overflow: visible;
+                transition: all 0.3s ease;
+            }
+            .org-center:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 20px 50px rgba(30, 64, 175, 0.4);
             }
             .org-center::before {
                 content: "";
@@ -457,14 +472,14 @@
                 .org-btn-allopen {
                     display: none;
                 }
+                .org-total-count {
+                    display: none;
+                }
                 .org-level {
                     display: flex;
-                    flex-direction: row;
-                    justify-content: center;
-                    gap: 36px;
-                    flex-wrap: wrap;
-                    overflow-x: auto;
-                    scroll-snap-type: x mandatory;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 20px;
                     /* 모바일 스크롤 개선 */
                     -webkit-overflow-scrolling: touch;
                     scrollbar-width: none;
@@ -475,9 +490,9 @@
                 }
                 /* 모바일에서 부서 카드 크기 조정 */
                 .org-dept {
-                    min-width: 160px;
-                    max-width: 180px;
-                    padding: 10px;
+                    min-width: 200px;
+                    max-width: 280px;
+                    padding: 12px;
                 }
                 /* 모바일에서 섹션 패딩 조정 */
                 .org-section {
@@ -499,13 +514,13 @@
             }
             @media (max-width: 480px) {
                 .org-level {
-                    grid-template-columns: repeat(2, 1fr);
-                    gap: 20px;
+                    flex-direction: column;
+                    gap: 15px;
                 }
                 .org-dept {
-                    min-width: 140px;
-                    max-width: 160px;
-                    padding: 8px;
+                    min-width: 180px;
+                    max-width: 260px;
+                    padding: 10px;
                 }
                 .org-dept-title {
                     font-size: 0.9em;
@@ -527,6 +542,7 @@
     </head>
     <body>
         <div class="org-section" id="main-org">
+            <div class="org-total-count" id="totalCount"></div>
             <div class="org-header-action">
                 <button class="org-btn-allopen" id="orgAllOpenBtn">
                     한번에 확인하기
@@ -582,7 +598,11 @@
             // 4. 프로필 이미지: 각 멤버의 image 필드에 이미지 URL을 추가하세요
 
             const orgData = {
-                root: { name: "대표이사 강필구", floor: "" },
+                root: {
+                    name: "대표이사 강필구",
+                    floor: "",
+                    image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=강필구",
+                },
                 depts: [
                     // === 1순위: 경영진 ===
                     {
@@ -890,6 +910,25 @@
                 });
             }
 
+            // ===== 총원 계산 및 표시 함수 =====
+            function updateTotalCount() {
+                const totalMembers = orgData.depts.reduce((total, dept) => {
+                    return total + dept.members.length;
+                }, 0);
+
+                // 대표이사 포함하여 총원 계산
+                const grandTotal = totalMembers + 1; // 대표이사 1명 추가
+
+                const totalCountElement = document.getElementById("totalCount");
+                totalCountElement.textContent = `총원 ${grandTotal}명`;
+
+                // 애니메이션 효과 추가
+                totalCountElement.style.transform = "scale(1.05)";
+                setTimeout(() => {
+                    totalCountElement.style.transform = "scale(1)";
+                }, 200);
+            }
+
             // ===== 모달 기능 =====
             function showModal(imageSrc) {
                 const modal = document.getElementById("modalOverlay");
@@ -905,73 +944,90 @@
                 document.body.style.overflow = "auto";
             }
 
-            // ===== DOM 렌더링 =====
-            const tree = document.getElementById("org-tree");
-            tree.innerHTML = `
-                <div class="org-center">
-                    <span>${orgData.root.name}</span>
-                    ${
-                        orgData.root.floor
-                            ? `<br><span class="org-dept-floor">${orgData.root.floor}</span>`
-                            : ""
-                    }
-                </div>
-            `;
+            // ===== 대표이사 렌더링 함수 =====
+            function renderCEO() {
+                const tree = document.getElementById("org-tree");
+                tree.innerHTML = `
+                    <div class="org-center" style="cursor: pointer;">
+                        <span>${orgData.root.name}</span>
+                        ${
+                            orgData.root.floor
+                                ? `<br><span class="org-dept-floor">${orgData.root.floor}</span>`
+                                : ""
+                        }
+                    </div>
+                `;
 
-            const levelDiv = document.createElement("div");
-            levelDiv.className = "org-level";
-            const allDeptDivs = [];
-
-            orgData.depts.forEach((dept) => {
-                const wrapperDiv = document.createElement("div");
-                wrapperDiv.className = "org-dept-wrapper";
-
-                const deptDiv = document.createElement("div");
-                deptDiv.className = "org-dept";
-
-                const floorDiv = document.createElement("div");
-                floorDiv.className = "org-dept-floor";
-                floorDiv.innerText = dept.floor;
-                deptDiv.appendChild(floorDiv);
-
-                const titleDiv = document.createElement("div");
-                titleDiv.className = "org-dept-title";
-                titleDiv.innerHTML = `${dept.title}<span class="org-dept-count">${dept.count}명</span>`;
-                deptDiv.appendChild(titleDiv);
-
-                deptDiv.addEventListener("click", () => {
-                    deptDiv.classList.toggle("open");
+                // 대표이사 클릭 이벤트 추가
+                const centerElement = tree.querySelector(".org-center");
+                centerElement.addEventListener("click", () => {
+                    showModal(orgData.root.image);
                 });
+            }
 
-                const memDiv = document.createElement("div");
-                memDiv.className = "org-member-list";
-                dept.members.forEach((member) => {
-                    const memItem = document.createElement("div");
-                    memItem.className = "org-member";
-                    memItem.innerHTML = `
-                        ${member.name}
-                        <div class="profile-tooltip">
-                            <img class="profile-image" src="${member.image}" alt="${member.name}" loading="lazy">
-                            <div class="profile-name">${member.name}</div>
-                        </div>
-                    `;
+            // ===== 부서 렌더링 함수 =====
+            function renderDepartments() {
+                const tree = document.getElementById("org-tree");
+                const levelDiv = document.createElement("div");
+                levelDiv.className = "org-level";
+                const allDeptDivs = [];
 
-                    // 클릭 이벤트 추가 (모달 열기)
-                    memItem.addEventListener("click", (e) => {
-                        e.stopPropagation();
-                        showModal(member.image);
+                orgData.depts.forEach((dept) => {
+                    const wrapperDiv = document.createElement("div");
+                    wrapperDiv.className = "org-dept-wrapper";
+
+                    const deptDiv = document.createElement("div");
+                    deptDiv.className = "org-dept";
+
+                    const floorDiv = document.createElement("div");
+                    floorDiv.className = "org-dept-floor";
+                    floorDiv.innerText = dept.floor;
+                    deptDiv.appendChild(floorDiv);
+
+                    const titleDiv = document.createElement("div");
+                    titleDiv.className = "org-dept-title";
+                    titleDiv.innerHTML = `${dept.title}<span class="org-dept-count">${dept.count}명</span>`;
+                    deptDiv.appendChild(titleDiv);
+
+                    deptDiv.addEventListener("click", () => {
+                        deptDiv.classList.toggle("open");
                     });
 
-                    memDiv.appendChild(memItem);
+                    const memDiv = document.createElement("div");
+                    memDiv.className = "org-member-list";
+                    dept.members.forEach((member) => {
+                        const memItem = document.createElement("div");
+                        memItem.className = "org-member";
+                        memItem.innerHTML = `
+                            ${member.name}
+                            <div class="profile-tooltip">
+                                <img class="profile-image" src="${member.image}" alt="${member.name}" loading="lazy">
+                                <div class="profile-name">${member.name}</div>
+                            </div>
+                        `;
+
+                        // 클릭 이벤트 추가 (모달 열기)
+                        memItem.addEventListener("click", (e) => {
+                            e.stopPropagation();
+                            showModal(member.image);
+                        });
+
+                        memDiv.appendChild(memItem);
+                    });
+
+                    wrapperDiv.appendChild(deptDiv);
+                    wrapperDiv.appendChild(memDiv);
+                    levelDiv.appendChild(wrapperDiv);
+                    allDeptDivs.push(deptDiv);
                 });
 
-                wrapperDiv.appendChild(deptDiv);
-                wrapperDiv.appendChild(memDiv);
-                levelDiv.appendChild(wrapperDiv);
-                allDeptDivs.push(deptDiv);
-            });
+                tree.appendChild(levelDiv);
+                return allDeptDivs;
+            }
 
-            tree.appendChild(levelDiv);
+            // ===== DOM 렌더링 =====
+            renderCEO();
+            const allDeptDivs = renderDepartments();
 
             // ===== 이벤트 리스너 =====
             document
@@ -1018,23 +1074,43 @@
                 );
             }
 
+            // ===== 대표이사 툴팁 처리 =====
+            function handleCEOTooltip() {
+                const center = document.querySelector(".org-center");
+                if (center) {
+                    center.classList.add("show-profile");
+                    setTimeout(
+                        () => center.classList.remove("show-profile"),
+                        3000
+                    );
+                }
+            }
+
+            // ===== 부서 멤버 툴팁 처리 =====
+            function handleMemberTooltip(member) {
+                const members = document.querySelectorAll(".org-member");
+                members.forEach((m) => m.classList.remove("show-profile"));
+
+                member.classList.add("show-profile");
+                setTimeout(() => member.classList.remove("show-profile"), 3000);
+            }
+
             if (isTouchDevice()) {
                 tree.addEventListener("click", function (e) {
-                    const members = document.querySelectorAll(".org-member");
-                    members.forEach((m) => m.classList.remove("show-profile"));
                     const member = e.target.closest(".org-member");
+                    const centerElement = e.target.closest(".org-center");
+
                     if (member) {
-                        member.classList.add("show-profile");
-                        setTimeout(
-                            () => member.classList.remove("show-profile"),
-                            3000
-                        );
+                        handleMemberTooltip(member);
+                    } else if (centerElement) {
+                        handleCEOTooltip();
                     }
                 });
             }
 
             // ===== 초기화 =====
             updateMemberCounts();
+            updateTotalCount();
 
             // ===== 추가 모바일 스크롤 개선 =====
             // 페이지 로드 후 약간의 지연을 두고 스크롤 강제 활성화
