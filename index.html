@@ -281,30 +281,25 @@
                 transform: none;
                 box-shadow: none;
             }
-            /* ==== 툴팁 스타일 ==== */
-            .org-member .tooltip {
+            /* ==== 프로필 이미지 툴팁 스타일 ==== */
+            .org-member .profile-tooltip {
                 visibility: hidden;
                 opacity: 0;
-                background: linear-gradient(135deg, #1e40af 70%, #10b981 100%);
-                color: #fff;
-                font-weight: bold;
-                text-align: center;
-                padding: 6px 12px;
-                border-radius: 8px;
+                background: #fff;
+                border-radius: 12px;
                 position: absolute;
-                bottom: 110%;
+                bottom: 120%;
                 left: 50%;
                 transform: translateX(-50%);
                 z-index: 9999;
-                font-size: 0.93em;
-                min-width: 110px;
-                white-space: nowrap;
+                width: 120px;
                 pointer-events: none;
                 transition: all 0.3s ease;
-                box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
-                border: 1px solid rgba(255, 255, 255, 0.2);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+                border: 2px solid rgba(30, 64, 175, 0.1);
+                overflow: hidden;
             }
-            .org-member .tooltip::after {
+            .org-member .profile-tooltip::after {
                 content: "";
                 position: absolute;
                 top: 100%;
@@ -312,13 +307,86 @@
                 margin-left: -5px;
                 border-width: 5px;
                 border-style: solid;
-                border-color: #1e40af transparent transparent transparent;
+                border-color: #fff transparent transparent transparent;
             }
-            .org-member:hover .tooltip,
-            .org-member.show-tooltip .tooltip {
+            .org-member:hover .profile-tooltip,
+            .org-member.show-profile .profile-tooltip {
                 visibility: visible;
                 opacity: 1;
                 transform: translateX(-50%) translateY(-5px);
+            }
+            .profile-image {
+                width: 100%;
+                height: 100px;
+                object-fit: cover;
+                display: block;
+            }
+            .profile-name {
+                padding: 8px;
+                font-size: 0.85em;
+                font-weight: 600;
+                color: #2d3748;
+                text-align: center;
+                background: rgba(30, 64, 175, 0.05);
+            }
+            /* ==== 모달 스타일 ==== */
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+            .modal-overlay.show {
+                opacity: 1;
+                visibility: visible;
+            }
+            .modal-content {
+                background: #fff;
+                border-radius: 16px;
+                padding: 20px;
+                max-width: 90vw;
+                max-height: 90vh;
+                position: relative;
+                transform: scale(0.8);
+                transition: transform 0.3s ease;
+            }
+            .modal-overlay.show .modal-content {
+                transform: scale(1);
+            }
+            .modal-image {
+                max-width: 100%;
+                max-height: 70vh;
+                border-radius: 8px;
+                display: block;
+            }
+            .modal-close {
+                position: absolute;
+                top: -10px;
+                right: -10px;
+                width: 30px;
+                height: 30px;
+                background: #ef4444;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            }
+            .modal-close:hover {
+                background: #dc2626;
             }
             .org-dept {
                 position: relative;
@@ -375,8 +443,14 @@
                     color: #ffffff;
                 }
 
-                .tooltip {
-                    background-color: #4a6ff0;
+                .profile-tooltip {
+                    background-color: #2a2a2a;
+                    border-color: #4a6ff0;
+                }
+
+                .profile-name {
+                    background-color: #3a3a3a;
+                    color: #e0e0e0;
                 }
             }
             @media (max-width: 768px) {
@@ -409,6 +483,14 @@
                 .org-section {
                     padding: 20px 10px 0 10px;
                 }
+                /* 모바일에서 프로필 이미지 크기 조정 */
+                .profile-image {
+                    width: 80px;
+                    height: 80px;
+                }
+                .profile-tooltip {
+                    min-width: 100px;
+                }
             }
             @media (max-width: 600px) and (min-width: 769px) {
                 .org-level {
@@ -432,6 +514,14 @@
                     font-size: 0.9em;
                     padding: 6px 6px;
                 }
+                /* 모바일에서 프로필 이미지 크기 조정 */
+                .profile-image {
+                    width: 70px;
+                    height: 70px;
+                }
+                .profile-tooltip {
+                    min-width: 90px;
+                }
             }
         </style>
     </head>
@@ -444,6 +534,20 @@
             </div>
             <div class="org-tree" id="org-tree"></div>
         </div>
+
+        <!-- 모달 오버레이 -->
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal-content">
+                <button class="modal-close" id="modalClose">&times;</button>
+                <img
+                    class="modal-image"
+                    id="modalImage"
+                    src=""
+                    alt="프로필 이미지"
+                />
+            </div>
+        </div>
+
         <script>
             // ===== 모바일 스크롤 개선 =====
             function fixMobileScroll() {
@@ -473,8 +577,9 @@
             // ===== 조직도 데이터 =====
             // 💡 순서 변경 방법:
             // 1. 부서 순서: depts 배열에서 항목 순서를 바꾸세요
-            // 2. 멤버 순서: 각 부서의 members 배열에서 항목 순서를 바꾸세요
+            // 2. 멤버 순서: 각 부서의 members 배열에서 항목 순서를 바꾸세요 (사원 > 수습 순)
             // 3. 인원 수는 자동으로 계산되므로 count는 수정하지 마세요
+            // 4. 프로필 이미지: 각 멤버의 image 필드에 이미지 URL을 추가하세요
 
             const orgData = {
                 root: { name: "대표이사 강필구", floor: "" },
@@ -485,13 +590,34 @@
                         count: 7,
                         floor: "2F",
                         members: [
-                            { name: "손광익 (부대표)", phone: "010-1234-0001" },
-                            { name: "신선일 (이사)", phone: "010-1234-0002" },
-                            { name: "유은주 (과장)", phone: "010-1234-0003" },
-                            { name: "정아린 (사원)", phone: "010-1234-0004" },
-                            { name: "김세진 (사원)", phone: "010-1234-0005" },
-                            { name: "장주희 (사원)", phone: "010-1234-0006" },
-                            { name: "최혁준 (사원)", phone: "010-1234-0007" },
+                            {
+                                name: "손광익 (부대표)",
+                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=손광익",
+                            },
+                            {
+                                name: "신선일 (이사)",
+                                image: "https://via.placeholder.com/200x200/10b981/ffffff?text=신선일",
+                            },
+                            {
+                                name: "유은주 (과장)",
+                                image: "https://via.placeholder.com/200x200/f59e0b/ffffff?text=유은주",
+                            },
+                            {
+                                name: "정아린 (사원)",
+                                image: "https://via.placeholder.com/200x200/ef4444/ffffff?text=정아린",
+                            },
+                            {
+                                name: "김세진 (사원)",
+                                image: "https://via.placeholder.com/200x200/8b5cf6/ffffff?text=김세진",
+                            },
+                            {
+                                name: "장주희 (사원)",
+                                image: "https://via.placeholder.com/200x200/06b6d4/ffffff?text=장주희",
+                            },
+                            {
+                                name: "최혁준 (사원)",
+                                image: "https://via.placeholder.com/200x200/84cc16/ffffff?text=최혁준",
+                            },
                         ],
                     },
                     // === 2순위: 전략부서 ===
@@ -500,9 +626,18 @@
                         count: 3,
                         floor: "2F",
                         members: [
-                            { name: "박병도 (실장)", phone: "010-1234-0008" },
-                            { name: "강병현 (팀장)", phone: "010-1234-0009" },
-                            { name: "지윤환 (수습)", phone: "010-1234-0010" },
+                            {
+                                name: "박병도 (실장)",
+                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=박병도",
+                            },
+                            {
+                                name: "강병현 (팀장)",
+                                image: "https://via.placeholder.com/200x200/10b981/ffffff?text=강병현",
+                            },
+                            {
+                                name: "지윤환 (수습)",
+                                image: "people/지윤환.png",
+                            },
                         ],
                     },
                     // === 3순위: 핵심 사업부 ===
@@ -511,50 +646,150 @@
                         count: 18,
                         floor: "2F",
                         members: [
-                            { name: "김정준 (본부장)", phone: "010-1234-0011" },
-                            { name: "김민욱 (팀장)", phone: "010-1234-0012" },
-                            { name: "김예진 (과장)", phone: "010-1234-0013" },
-                            { name: "김은정 (대리)", phone: "010-1234-0014" },
-                            { name: "박효진 (대리)", phone: "010-1234-0015" },
-                            { name: "최은영 (대리)", phone: "010-1234-0016" },
-                            { name: "김영훈 (파트장)", phone: "010-1234-0017" },
-                            { name: "최아리찬 (사원)", phone: "010-1234-0018" },
-                            { name: "이산하 (사원)", phone: "010-1234-0019" },
-                            { name: "서정민 (수습)", phone: "010-1234-0020" },
-                            { name: "권재은 (사원)", phone: "010-1234-0021" },
-                            { name: "박지영 (수습)", phone: "010-1234-0022" },
-                            { name: "박종호 (수습)", phone: "010-1234-0023" },
-                            { name: "이지혜 (사원)", phone: "010-1234-0024" },
-                            { name: "송예진 (사원)", phone: "010-1234-0025" },
-                            { name: "신유정 (매니져)", phone: "010-1234-0026" },
-                            { name: "형성인 (사원)", phone: "010-1234-0027" },
+                            {
+                                name: "김정준 (본부장)",
+                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=김정준",
+                            },
+                            {
+                                name: "김민욱 (팀장)",
+                                image: "https://via.placeholder.com/200x200/10b981/ffffff?text=김민욱",
+                            },
+                            {
+                                name: "김영훈 (파트장)",
+                                image: "https://via.placeholder.com/200x200/84cc16/ffffff?text=김영훈",
+                            },
+                            {
+                                name: "김예진 (과장)",
+                                image: "https://via.placeholder.com/200x200/f59e0b/ffffff?text=김예진",
+                            },
+                            {
+                                name: "김은정 (대리)",
+                                image: "https://via.placeholder.com/200x200/ef4444/ffffff?text=김은정",
+                            },
+                            {
+                                name: "박효진 (대리)",
+                                image: "https://via.placeholder.com/200x200/8b5cf6/ffffff?text=박효진",
+                            },
+                            {
+                                name: "최은영 (대리)",
+                                image: "https://via.placeholder.com/200x200/06b6d4/ffffff?text=최은영",
+                            },
+                            {
+                                name: "박지영 (대리)",
+                                image: "https://via.placeholder.com/200x200/8b5cf6/ffffff?text=박지영",
+                            },
+                            {
+                                name: "신유정 (매니져)",
+                                image: "https://via.placeholder.com/200x200/10b981/ffffff?text=신유정",
+                            },
+                            {
+                                name: "최아리찬 (사원)",
+                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=최아리찬",
+                            },
+                            {
+                                name: "이산하 (사원)",
+                                image: "https://via.placeholder.com/200x200/10b981/ffffff?text=이산하",
+                            },
+                            {
+                                name: "권재은 (사원)",
+                                image: "https://via.placeholder.com/200x200/ef4444/ffffff?text=권재은",
+                            },
+                            {
+                                name: "이지혜 (사원)",
+                                image: "https://via.placeholder.com/200x200/84cc16/ffffff?text=이지혜",
+                            },
+                            {
+                                name: "송예진 (사원)",
+                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=송예진",
+                            },
+                            {
+                                name: "형성인 (사원)",
+                                image: "https://via.placeholder.com/200x200/f59e0b/ffffff?text=형성인",
+                            },
                             {
                                 name: "신선경 (사원,재택)",
-                                phone: "010-1234-0028",
+                                image: "https://via.placeholder.com/200x200/ef4444/ffffff?text=신선경",
+                            },
+                            {
+                                name: "서정민 (사원)",
+                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=서정민",
+                            },
+                            {
+                                name: "박종호 (수습)",
+                                image: "https://via.placeholder.com/200x200/06b6d4/ffffff?text=박종호",
                             },
                         ],
                     },
                     // === 4순위: 사업부 2 ===
                     {
                         title: "브랜드사업부(드리미)",
-                        count: 15,
+                        count: 16,
                         floor: "4F",
                         members: [
-                            { name: "강병훈 (팀장)", phone: "010-1234-0029" },
-                            { name: "윤성규 (파트장)", phone: "010-1234-0030" },
-                            { name: "이영우 (과장)", phone: "010-1234-0031" },
-                            { name: "홍성수 (과장)", phone: "010-1234-0032" },
-                            { name: "황재완 (대리)", phone: "010-1234-0033" },
-                            { name: "설길호 (대리)", phone: "010-1234-0034" },
-                            { name: "김정호 (대리)", phone: "010-1234-0035" },
-                            { name: "박민찬 (주임)", phone: "010-1234-0036" },
-                            { name: "이수진 (주임)", phone: "010-1234-0037" },
-                            { name: "정성원 (주임)", phone: "010-1234-0038" },
-                            { name: "권도연 (주임)", phone: "010-1234-0039" },
-                            { name: "이윤경 (수습)", phone: "010-1234-0040" },
-                            { name: "조하정 (수습)", phone: "010-1234-0041" },
-                            { name: "변해형 (수습)", phone: "010-1234-0042" },
-                            { name: "이다현 (사원)", phone: "010-1234-0043" },
+                            {
+                                name: "강병훈 (팀장)",
+                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=강병훈",
+                            },
+                            {
+                                name: "윤성규 (파트장)",
+                                image: "https://via.placeholder.com/200x200/10b981/ffffff?text=윤성규",
+                            },
+                            {
+                                name: "이영우 (과장)",
+                                image: "https://via.placeholder.com/200x200/f59e0b/ffffff?text=이영우",
+                            },
+                            {
+                                name: "홍성수 (과장)",
+                                image: "https://via.placeholder.com/200x200/ef4444/ffffff?text=홍성수",
+                            },
+                            {
+                                name: "황재완 (대리)",
+                                image: "https://via.placeholder.com/200x200/8b5cf6/ffffff?text=황재완",
+                            },
+                            {
+                                name: "설길호 (대리)",
+                                image: "https://via.placeholder.com/200x200/06b6d4/ffffff?text=설길호",
+                            },
+                            {
+                                name: "김정호 (대리)",
+                                image: "https://via.placeholder.com/200x200/84cc16/ffffff?text=김정호",
+                            },
+                            {
+                                name: "박민찬 (주임)",
+                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=박민찬",
+                            },
+                            {
+                                name: "이수진 (주임)",
+                                image: "https://via.placeholder.com/200x200/10b981/ffffff?text=이수진",
+                            },
+                            {
+                                name: "정성원 (주임)",
+                                image: "https://via.placeholder.com/200x200/f59e0b/ffffff?text=정성원",
+                            },
+                            {
+                                name: "권도연 (주임)",
+                                image: "https://via.placeholder.com/200x200/ef4444/ffffff?text=권도연",
+                            },
+                            {
+                                name: "이다현 (사원)",
+                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=이다현",
+                            },
+                            {
+                                name: "이윤경 (사원)",
+                                image: "https://via.placeholder.com/200x200/84cc16/ffffff?text=이윤경",
+                            },
+                            {
+                                name: "조하정 (수습)",
+                                image: "https://via.placeholder.com/200x200/8b5cf6/ffffff?text=조하정",
+                            },
+                            {
+                                name: "변해형 (수습)",
+                                image: "https://via.placeholder.com/200x200/06b6d4/ffffff?text=변해형",
+                            },
+                            {
+                                name: "최유선 (수습)",
+                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=최유선",
+                            },
                         ],
                     },
                     // === 5순위: 지원부서 ===
@@ -563,10 +798,22 @@
                         count: 4,
                         floor: "4F",
                         members: [
-                            { name: "지연아 (과장)", phone: "010-1234-0044" },
-                            { name: "조예은 (대리)", phone: "010-1234-0045" },
-                            { name: "조민지 (주임)", phone: "010-1234-0046" },
-                            { name: "박규원 (사원)", phone: "010-1234-0047" },
+                            {
+                                name: "지연아 (과장)",
+                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=지연아",
+                            },
+                            {
+                                name: "조예은 (대리)",
+                                image: "https://via.placeholder.com/200x200/10b981/ffffff?text=조예은",
+                            },
+                            {
+                                name: "조민지 (주임)",
+                                image: "https://via.placeholder.com/200x200/f59e0b/ffffff?text=조민지",
+                            },
+                            {
+                                name: "박규원 (사원)",
+                                image: "https://via.placeholder.com/200x200/ef4444/ffffff?text=박규원",
+                            },
                         ],
                     },
                     // === 6순위: 고객지원 ===
@@ -575,12 +822,30 @@
                         count: 6,
                         floor: "3F",
                         members: [
-                            { name: "신선주 (팀장)", phone: "010-1234-0048" },
-                            { name: "최이슬 (과장)", phone: "010-1234-0049" },
-                            { name: "박주영 (수습)", phone: "010-1234-0050" },
-                            { name: "노가을 (수습)", phone: "010-1234-0051" },
-                            { name: "장주현 (수습)", phone: "010-1234-0052" },
-                            { name: "김유미 (수습)", phone: "010-1234-0053" },
+                            {
+                                name: "신선주 (팀장)",
+                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=신선주",
+                            },
+                            {
+                                name: "최이슬 (과장)",
+                                image: "https://via.placeholder.com/200x200/10b981/ffffff?text=최이슬",
+                            },
+                            {
+                                name: "박주영 (사원)",
+                                image: "https://via.placeholder.com/200x200/84cc16/ffffff?text=박주영",
+                            },
+                            {
+                                name: "노가을 (수습)",
+                                image: "https://via.placeholder.com/200x200/ef4444/ffffff?text=노가을",
+                            },
+                            {
+                                name: "장주현 (수습)",
+                                image: "https://via.placeholder.com/200x200/8b5cf6/ffffff?text=장주현",
+                            },
+                            {
+                                name: "김유미 (수습)",
+                                image: "https://via.placeholder.com/200x200/06b6d4/ffffff?text=김유미",
+                            },
                         ],
                     },
                     // === 7순위: 외부부서 ===
@@ -589,12 +854,30 @@
                         count: 6,
                         floor: "외부",
                         members: [
-                            { name: "신선희 (이사)", phone: "010-1234-0054" },
-                            { name: "강희구 (이사)", phone: "010-1234-0055" },
-                            { name: "고성철 (과장)", phone: "010-1234-0056" },
-                            { name: "손선남 (과장)", phone: "010-1234-0057" },
-                            { name: "백인호 (대리)", phone: "010-1234-0058" },
-                            { name: "김종희 (사원)", phone: "010-1234-0059" },
+                            {
+                                name: "신선희 (이사)",
+                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=신선희",
+                            },
+                            {
+                                name: "강희구 (이사)",
+                                image: "https://via.placeholder.com/200x200/10b981/ffffff?text=강희구",
+                            },
+                            {
+                                name: "고성철 (과장)",
+                                image: "https://via.placeholder.com/200x200/f59e0b/ffffff?text=고성철",
+                            },
+                            {
+                                name: "손선남 (과장)",
+                                image: "https://via.placeholder.com/200x200/ef4444/ffffff?text=손선남",
+                            },
+                            {
+                                name: "백인호 (대리)",
+                                image: "https://via.placeholder.com/200x200/8b5cf6/ffffff?text=백인호",
+                            },
+                            {
+                                name: "김종희 (사원)",
+                                image: "https://via.placeholder.com/200x200/06b6d4/ffffff?text=김종희",
+                            },
                         ],
                     },
                 ],
@@ -605,6 +888,21 @@
                 orgData.depts.forEach((dept) => {
                     dept.count = dept.members.length;
                 });
+            }
+
+            // ===== 모달 기능 =====
+            function showModal(imageSrc) {
+                const modal = document.getElementById("modalOverlay");
+                const modalImage = document.getElementById("modalImage");
+                modalImage.src = imageSrc;
+                modal.classList.add("show");
+                document.body.style.overflow = "hidden";
+            }
+
+            function hideModal() {
+                const modal = document.getElementById("modalOverlay");
+                modal.classList.remove("show");
+                document.body.style.overflow = "auto";
             }
 
             // ===== DOM 렌더링 =====
@@ -652,8 +950,18 @@
                     memItem.className = "org-member";
                     memItem.innerHTML = `
                         ${member.name}
-                        <span class="tooltip">${member.phone}</span>
+                        <div class="profile-tooltip">
+                            <img class="profile-image" src="${member.image}" alt="${member.name}" loading="lazy">
+                            <div class="profile-name">${member.name}</div>
+                        </div>
                     `;
+
+                    // 클릭 이벤트 추가 (모달 열기)
+                    memItem.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        showModal(member.image);
+                    });
+
                     memDiv.appendChild(memItem);
                 });
 
@@ -680,6 +988,25 @@
                         : "한번에 확인하기";
                 });
 
+            // 모달 닫기 이벤트
+            document
+                .getElementById("modalClose")
+                .addEventListener("click", hideModal);
+            document
+                .getElementById("modalOverlay")
+                .addEventListener("click", (e) => {
+                    if (e.target.id === "modalOverlay") {
+                        hideModal();
+                    }
+                });
+
+            // ESC 키로 모달 닫기
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") {
+                    hideModal();
+                }
+            });
+
             // ===== 모바일 툴팁 처리 =====
             function isTouchDevice() {
                 return (
@@ -694,13 +1021,13 @@
             if (isTouchDevice()) {
                 tree.addEventListener("click", function (e) {
                     const members = document.querySelectorAll(".org-member");
-                    members.forEach((m) => m.classList.remove("show-tooltip"));
+                    members.forEach((m) => m.classList.remove("show-profile"));
                     const member = e.target.closest(".org-member");
                     if (member) {
-                        member.classList.add("show-tooltip");
+                        member.classList.add("show-profile");
                         setTimeout(
-                            () => member.classList.remove("show-tooltip"),
-                            2000
+                            () => member.classList.remove("show-profile"),
+                            3000
                         );
                     }
                 });
