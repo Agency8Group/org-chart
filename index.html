@@ -20,6 +20,14 @@
                 position: relative;
                 height: auto;
                 min-height: 100vh;
+                /* iframe 내부 스크롤바 제거 */
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+
+            html::-webkit-scrollbar,
+            body::-webkit-scrollbar {
+                display: none;
             }
 
             body {
@@ -34,6 +42,8 @@
                 text-size-adjust: 100%;
                 /* 터치 액션 최적화 */
                 touch-action: pan-y;
+                /* iframe 내부 스크롤 방지 */
+                overflow: visible;
             }
 
             /* iframe 내부 스크롤 개선 */
@@ -45,6 +55,13 @@
                 -moz-user-select: none;
                 -ms-user-select: none;
                 user-select: none;
+                /* 스크롤바 제거 */
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+
+            *::-webkit-scrollbar {
+                display: none;
             }
 
             /* 텍스트는 선택 가능하게 */
@@ -65,6 +82,8 @@
                 /* 모바일 스크롤 개선 */
                 min-height: 100vh;
                 overflow: visible;
+                /* iframe 내부 스크롤 방지 */
+                height: auto;
             }
             .org-header-action {
                 position: absolute;
@@ -102,6 +121,8 @@
                 /* 모바일 스크롤 개선 */
                 position: relative;
                 z-index: 1;
+                /* iframe 내부 스크롤 방지 */
+                overflow: visible;
             }
             .org-center {
                 background: linear-gradient(135deg, #1e40af 70%, #10b981 100%);
@@ -144,6 +165,8 @@
                 /* 모바일 스크롤 개선 */
                 width: 100%;
                 max-width: 100%;
+                /* iframe 내부 스크롤 방지 */
+                overflow: visible;
             }
             .org-level::after {
                 font-size: 0.8em;
@@ -158,6 +181,8 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                /* iframe 내부 스크롤 방지 */
+                overflow: visible;
             }
             .org-dept {
                 background: linear-gradient(145deg, #ffffff, #f8fafc);
@@ -225,6 +250,8 @@
                 margin: 0;
                 padding: 0;
                 box-sizing: border-box;
+                /* iframe 내부 스크롤 방지 */
+                overflow: visible;
             }
             .org-dept.open + .org-member-list {
                 opacity: 1;
@@ -434,6 +461,8 @@
                 if (window.self !== window.top) {
                     document.body.style.height = "auto";
                     document.body.style.minHeight = "100vh";
+                    document.body.style.overflow = "visible";
+                    document.documentElement.style.overflow = "visible";
                 }
             }
 
@@ -684,9 +713,11 @@
             // 페이지 로드 후 약간의 지연을 두고 스크롤 강제 활성화
             setTimeout(() => {
                 fixMobileScroll();
-                // 스크롤 위치를 약간 움직여서 스크롤 활성화
-                window.scrollTo(0, 1);
-                setTimeout(() => window.scrollTo(0, 0), 100);
+                // iframe 내부에서는 스크롤 강제 활성화 제거
+                if (window.self === window.top) {
+                    window.scrollTo(0, 1);
+                    setTimeout(() => window.scrollTo(0, 0), 100);
+                }
             }, 500);
         </script>
     </body>
