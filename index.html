@@ -3,23 +3,68 @@
     <head>
         <meta charset="UTF-8" />
         <title>eibe_org</title>
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta
+            name="viewport"
+            content="width=device-width,initial-scale=1,user-scalable=no"
+        />
         <link
             href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600&display=swap"
             rel="stylesheet"
         />
         <style>
+            /* ===== 모바일 스크롤 개선 ===== */
+            html,
+            body {
+                -webkit-overflow-scrolling: touch;
+                overflow-x: hidden;
+                position: relative;
+                height: auto;
+                min-height: 100vh;
+            }
+
             body {
                 background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)
                     fixed;
                 font-family: "Noto Sans KR", sans-serif;
                 margin: 0;
+                padding: 0;
+                /* 모바일 스크롤 최적화 */
+                -webkit-text-size-adjust: 100%;
+                -ms-text-size-adjust: 100%;
+                text-size-adjust: 100%;
+                /* 터치 액션 최적화 */
+                touch-action: pan-y;
             }
+
+            /* iframe 내부 스크롤 개선 */
+            * {
+                -webkit-tap-highlight-color: transparent;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+
+            /* 텍스트는 선택 가능하게 */
+            .org-dept-title,
+            .org-member,
+            .org-center {
+                -webkit-user-select: text;
+                -moz-user-select: text;
+                -ms-user-select: text;
+                user-select: text;
+            }
+
             .org-section {
                 margin: 0 auto 52px auto;
                 padding: 30px 0 0 0;
                 position: relative;
                 max-width: 1200px;
+                /* 모바일 스크롤 개선 */
+                min-height: 100vh;
+                overflow: visible;
             }
             .org-header-action {
                 position: absolute;
@@ -41,6 +86,9 @@
                 transition: all 0.3s ease;
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
+                /* 모바일 터치 최적화 */
+                -webkit-tap-highlight-color: rgba(30, 64, 175, 0.3);
+                touch-action: manipulation;
             }
             .org-btn-allopen:hover {
                 background: linear-gradient(135deg, #1e3a8a 70%, #059669 100%);
@@ -51,6 +99,9 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                /* 모바일 스크롤 개선 */
+                position: relative;
+                z-index: 1;
             }
             .org-center {
                 background: linear-gradient(135deg, #1e40af 70%, #10b981 100%);
@@ -90,6 +141,9 @@
                 justify-content: center;
                 padding-bottom: 20px;
                 position: relative;
+                /* 모바일 스크롤 개선 */
+                width: 100%;
+                max-width: 100%;
             }
             .org-level::after {
                 font-size: 0.8em;
@@ -122,6 +176,9 @@
                 position: relative;
                 z-index: 10;
                 border: 1px solid rgba(30, 64, 175, 0.1);
+                /* 모바일 터치 최적화 */
+                -webkit-tap-highlight-color: rgba(30, 64, 175, 0.1);
+                touch-action: manipulation;
             }
             .org-dept.open {
                 box-shadow: 0 15px 40px rgba(30, 64, 175, 0.2),
@@ -188,6 +245,9 @@
                 cursor: pointer;
                 border: none;
                 transition: all 0.2s ease;
+                /* 모바일 터치 최적화 */
+                -webkit-tap-highlight-color: rgba(30, 64, 175, 0.1);
+                touch-action: manipulation;
             }
             .org-member:hover {
                 background: transparent;
@@ -304,6 +364,23 @@
                     flex-wrap: wrap;
                     overflow-x: auto;
                     scroll-snap-type: x mandatory;
+                    /* 모바일 스크롤 개선 */
+                    -webkit-overflow-scrolling: touch;
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                }
+                .org-level::-webkit-scrollbar {
+                    display: none;
+                }
+                /* 모바일에서 부서 카드 크기 조정 */
+                .org-dept {
+                    min-width: 160px;
+                    max-width: 180px;
+                    padding: 10px;
+                }
+                /* 모바일에서 섹션 패딩 조정 */
+                .org-section {
+                    padding: 20px 10px 0 10px;
                 }
             }
             @media (max-width: 600px) and (min-width: 769px) {
@@ -314,6 +391,19 @@
             @media (max-width: 480px) {
                 .org-level {
                     grid-template-columns: repeat(2, 1fr);
+                    gap: 20px;
+                }
+                .org-dept {
+                    min-width: 140px;
+                    max-width: 160px;
+                    padding: 8px;
+                }
+                .org-dept-title {
+                    font-size: 0.9em;
+                }
+                .org-member {
+                    font-size: 0.9em;
+                    padding: 6px 6px;
                 }
             }
         </style>
@@ -328,6 +418,29 @@
             <div class="org-tree" id="org-tree"></div>
         </div>
         <script>
+            // ===== 모바일 스크롤 개선 =====
+            function fixMobileScroll() {
+                // iOS Safari 스크롤 개선
+                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                    document.body.style.webkitOverflowScrolling = "touch";
+                }
+
+                // Android Chrome 스크롤 개선
+                if (/Android/.test(navigator.userAgent)) {
+                    document.body.style.overflowScrolling = "touch";
+                }
+
+                // iframe 내부 스크롤 개선
+                if (window.self !== window.top) {
+                    document.body.style.height = "auto";
+                    document.body.style.minHeight = "100vh";
+                }
+            }
+
+            // 페이지 로드 시 스크롤 개선 적용
+            document.addEventListener("DOMContentLoaded", fixMobileScroll);
+            window.addEventListener("load", fixMobileScroll);
+
             // ===== 조직도 데이터 =====
             // 💡 순서 변경 방법:
             // 1. 부서 순서: depts 배열에서 항목 순서를 바꾸세요
@@ -371,12 +484,11 @@
                         members: [
                             { name: "김정준 (본부장)", phone: "010-1234-0011" },
                             { name: "김민욱 (팀장)", phone: "010-1234-0012" },
-                            { name: "김영훈 (파트장)", phone: "010-1234-0017" },
                             { name: "김예진 (과장)", phone: "010-1234-0013" },
                             { name: "김은정 (대리)", phone: "010-1234-0014" },
                             { name: "박효진 (대리)", phone: "010-1234-0015" },
                             { name: "최은영 (대리)", phone: "010-1234-0016" },
-                            { name: "신유정 (매니져)", phone: "010-1234-0026" },
+                            { name: "김영훈 (파트장)", phone: "010-1234-0017" },
                             { name: "최아리찬 (사원)", phone: "010-1234-0018" },
                             { name: "이산하 (사원)", phone: "010-1234-0019" },
                             { name: "서정민 (수습)", phone: "010-1234-0020" },
@@ -385,7 +497,7 @@
                             { name: "박종호 (수습)", phone: "010-1234-0023" },
                             { name: "이지혜 (사원)", phone: "010-1234-0024" },
                             { name: "송예진 (사원)", phone: "010-1234-0025" },
-
+                            { name: "신유정 (매니져)", phone: "010-1234-0026" },
                             { name: "형성인 (사원)", phone: "010-1234-0027" },
                             {
                                 name: "신선경 (사원,재택)",
@@ -567,6 +679,15 @@
 
             // ===== 초기화 =====
             updateMemberCounts();
+
+            // ===== 추가 모바일 스크롤 개선 =====
+            // 페이지 로드 후 약간의 지연을 두고 스크롤 강제 활성화
+            setTimeout(() => {
+                fixMobileScroll();
+                // 스크롤 위치를 약간 움직여서 스크롤 활성화
+                window.scrollTo(0, 1);
+                setTimeout(() => window.scrollTo(0, 0), 100);
+            }, 500);
         </script>
     </body>
 </html>
