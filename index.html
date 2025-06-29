@@ -31,8 +31,7 @@
             }
 
             body {
-                background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)
-                    fixed;
+                background: #f7f9fa;
                 font-family: "Noto Sans KR", sans-serif;
                 margin: 0;
                 padding: 0;
@@ -1014,7 +1013,13 @@
                         // 클릭 이벤트 추가 (모달 열기)
                         memItem.addEventListener("click", (e) => {
                             e.stopPropagation();
-                            showModal(member.image);
+                            // 부서가 열려있을 때만 모달 표시
+                            const parentDept = memItem
+                                .closest(".org-dept-wrapper")
+                                .querySelector(".org-dept");
+                            if (parentDept.classList.contains("open")) {
+                                showModal(member.image);
+                            }
                         });
 
                         memDiv.appendChild(memItem);
@@ -1101,12 +1106,25 @@
             }
 
             if (isTouchDevice()) {
+                const tree = document.getElementById("org-tree");
                 tree.addEventListener("click", function (e) {
                     const member = e.target.closest(".org-member");
                     const centerElement = e.target.closest(".org-center");
+                    const deptElement = e.target.closest(".org-dept");
+
+                    // 부서 카드 클릭 시에는 툴팁 처리하지 않음
+                    if (deptElement) {
+                        return;
+                    }
 
                     if (member) {
-                        handleMemberTooltip(member);
+                        // 부서가 열려있을 때만 툴팁 표시
+                        const parentDept = member
+                            .closest(".org-dept-wrapper")
+                            .querySelector(".org-dept");
+                        if (parentDept.classList.contains("open")) {
+                            handleMemberTooltip(member);
+                        }
                     } else if (centerElement) {
                         handleCEOTooltip();
                     }
