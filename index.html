@@ -2,601 +2,401 @@
 <html lang="ko">
     <head>
         <meta charset="UTF-8" />
-        <title>eibe_org</title>
-        <meta
-            name="viewport"
-            content="width=device-width,initial-scale=1,user-scalable=no"
-        />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>우리의 인물관</title>
         <link
-            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
             rel="stylesheet"
         />
         <style>
-            /* ===== 모바일 스크롤 개선 ===== */
-            html,
-            body {
-                -webkit-overflow-scrolling: touch;
-                overflow-x: hidden;
-                position: relative;
-                height: auto;
-                min-height: 100vh;
-                /* iframe 내부 스크롤바 제거 */
-                scrollbar-width: none;
-                -ms-overflow-style: none;
-            }
-
-            html::-webkit-scrollbar,
-            body::-webkit-scrollbar {
-                display: none;
-            }
-
-            body {
-                background: #f7f9fa;
-                font-family: "Noto Sans KR", sans-serif;
-                margin: 0;
-                padding: 0;
-                /* 모바일 스크롤 최적화 */
-                -webkit-text-size-adjust: 100%;
-                -ms-text-size-adjust: 100%;
-                text-size-adjust: 100%;
-                /* 터치 액션 최적화 */
-                touch-action: pan-y;
-                /* iframe 내부 스크롤 방지 */
-                overflow: visible;
-            }
-
-            /* iframe 내부 스크롤 개선 */
             * {
-                -webkit-tap-highlight-color: transparent;
-                -webkit-touch-callout: none;
-                -webkit-user-select: none;
-                -khtml-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
-                user-select: none;
-                /* 스크롤바 제거 */
-                scrollbar-width: none;
-                -ms-overflow-style: none;
-            }
-
-            *::-webkit-scrollbar {
-                display: none;
-            }
-
-            /* 텍스트는 선택 가능하게 */
-            .org-dept-title,
-            .org-member,
-            .org-center {
-                -webkit-user-select: text;
-                -moz-user-select: text;
-                -ms-user-select: text;
-                user-select: text;
-            }
-
-            .org-section {
-                margin: 0 auto 52px auto;
-                padding: 30px 0 0 0;
-                position: relative;
-                max-width: 1200px;
-                /* 모바일 스크롤 개선 */
-                min-height: 100vh;
-                overflow: visible;
-                /* iframe 내부 스크롤 방지 */
-                height: auto;
-            }
-            .org-header-action {
-                position: absolute;
-                right: 28px;
-                top: 28px;
-                z-index: 10;
-            }
-            .org-total-count {
-                position: absolute;
-                left: 28px;
-                top: 28px;
-                z-index: 10;
-                color: #1e40af;
-                font-weight: 600;
-                font-size: 1.1em;
-                transition: all 0.3s ease;
-            }
-            .org-btn-allopen {
-                background: linear-gradient(135deg, #1e40af 70%, #10b981 100%);
-                color: #fff;
-                font-weight: 600;
-                border: none;
-                outline: none;
-                border-radius: 12px;
-                padding: 10px 24px;
-                font-size: 1em;
-                box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
-                cursor: pointer;
-                transition: all 0.3s ease;
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                /* 모바일 터치 최적화 */
-                -webkit-tap-highlight-color: rgba(30, 64, 175, 0.3);
-                touch-action: manipulation;
-            }
-            .org-btn-allopen:hover {
-                background: linear-gradient(135deg, #1e3a8a 70%, #059669 100%);
-                transform: translateY(-2px);
-                box-shadow: 0 12px 35px rgba(30, 64, 175, 0.4);
-            }
-            .org-tree {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                /* 모바일 스크롤 개선 */
-                position: relative;
-                z-index: 1;
-                /* iframe 내부 스크롤 방지 */
-                overflow: visible;
-            }
-            .org-center {
-                background: linear-gradient(135deg, #1e40af 70%, #10b981 100%);
-                color: #fff;
-                font-size: 1em;
-                font-weight: bold;
-                border-radius: 18px;
-                box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
-                padding: 12px 20px;
-                min-width: 200px;
-                max-width: 240px;
-                text-align: center;
-                position: relative;
-                overflow: visible;
-                transition: all 0.3s ease;
-            }
-            .org-center:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 20px 50px rgba(30, 64, 175, 0.4);
-            }
-            .org-center::before {
-                content: "";
-                position: absolute;
-                top: 0;
-                left: -100%;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(
-                    90deg,
-                    transparent,
-                    rgba(255, 255, 255, 0.2),
-                    transparent
-                );
-                transition: left 0.5s;
-            }
-            .org-center:hover::before {
-                left: 100%;
-            }
-            .org-level {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 36px;
-                justify-content: center;
-                padding-bottom: 20px;
-                position: relative;
-                /* 모바일 스크롤 개선 */
-                width: 100%;
-                max-width: 100%;
-                /* iframe 내부 스크롤 방지 */
-                overflow: visible;
-            }
-            .org-level::after {
-                font-size: 0.8em;
-                color: #aaa;
-                position: absolute;
-                bottom: 0;
-                left: 50%;
-                transform: translateX(-50%);
-            }
-            .org-dept-wrapper {
-                scroll-snap-align: start;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                /* iframe 내부 스크롤 방지 */
-                overflow: visible;
-            }
-            .org-dept {
-                background: linear-gradient(145deg, #ffffff, #f8fafc);
-                border-radius: 18px;
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1),
-                    0 4px 10px rgba(0, 0, 0, 0.05);
-                min-width: 200px;
-                max-width: 240px;
-                padding: 12px;
-                margin-top: 20px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                position: relative;
-                z-index: 10;
-                border: 1px solid rgba(30, 64, 175, 0.1);
-                /* 모바일 터치 최적화 */
-                -webkit-tap-highlight-color: rgba(30, 64, 175, 0.1);
-                touch-action: manipulation;
-            }
-            .org-dept.open {
-                box-shadow: 0 15px 40px rgba(30, 64, 175, 0.2),
-                    0 8px 20px rgba(0, 0, 0, 0.1);
-                transform: translateY(-5px);
-                background: linear-gradient(145deg, #ffffff, #f0f9ff);
-            }
-            .org-dept-floor {
-                font-size: 0.9em;
-                font-weight: 600;
-                color: #1e40af;
-                background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-                border-radius: 8px;
-                padding: 4px 12px;
-                margin-bottom: 6px;
-                border: 1px solid rgba(30, 64, 175, 0.1);
-            }
-            .org-dept-title {
-                font-weight: 600;
-                color: #2d3748;
-                font-size: 1em;
-                margin-bottom: 3px;
-                text-align: center;
-            }
-            .org-dept-count {
-                color: #1e40af;
-                background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-                font-size: 0.9em;
-                border-radius: 12px;
-                padding: 2px 10px;
-                font-weight: 500;
-                margin-left: 6px;
-                border: 1px solid rgba(30, 64, 175, 0.1);
-            }
-            .org-member-list {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-                gap: 8px 10px;
-                align-items: stretch;
-                width: 100%;
-                opacity: 0;
-                max-height: 0;
-                transition: max-height 0.3s, opacity 0.2s;
                 margin: 0;
                 padding: 0;
                 box-sizing: border-box;
-                /* iframe 내부 스크롤 방지 */
-                overflow: visible;
             }
-            .org-dept.open + .org-member-list {
-                opacity: 1;
-                max-height: 600px;
+
+            body {
+                font-family: "Noto Sans KR", sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .header {
+                text-align: center;
+                color: white;
+                margin-bottom: 40px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+
+            .header p {
+                font-size: 1.1rem;
                 margin-top: 8px;
             }
-            /* ==== 멤버 스타일 ==== */
-            .org-member {
-                background: transparent;
-                border-radius: 10px;
-                color: #4a5568;
-                font-size: 0.97em;
-                padding: 7px 8px;
-                text-align: center;
-                white-space: nowrap;
-                overflow: visible;
-                position: relative;
-                cursor: pointer;
-                border: none;
-                transition: all 0.2s ease;
-                /* 모바일 터치 최적화 */
-                -webkit-tap-highlight-color: rgba(30, 64, 175, 0.1);
-                touch-action: manipulation;
-            }
-            .org-member:hover {
-                background: transparent;
-                transform: none;
-                box-shadow: none;
-            }
-            /* ==== 프로필 이미지 툴팁 스타일 ==== */
-            .org-member .profile-tooltip {
-                visibility: hidden;
-                opacity: 0;
-                background: #fff;
-                border-radius: 12px;
-                position: absolute;
-                bottom: 120%;
-                left: 50%;
-                transform: translateX(-50%);
-                z-index: 9999;
-                width: 120px;
-                pointer-events: none;
-                transition: all 0.3s ease;
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-                border: 2px solid rgba(30, 64, 175, 0.1);
-                overflow: hidden;
-            }
-            .org-member .profile-tooltip::after {
-                content: "";
-                position: absolute;
-                top: 100%;
-                left: 50%;
-                margin-left: -5px;
-                border-width: 5px;
-                border-style: solid;
-                border-color: #fff transparent transparent transparent;
-            }
-            .org-member:hover .profile-tooltip,
-            .org-member.show-profile .profile-tooltip {
-                visibility: visible;
-                opacity: 1;
-                transform: translateX(-50%) translateY(-5px);
-            }
-            .profile-image {
-                width: 100%;
-                height: 100px;
-                object-fit: cover;
-                display: block;
-            }
-            .profile-name {
-                padding: 8px;
-                font-size: 0.85em;
-                font-weight: 600;
-                color: #2d3748;
-                text-align: center;
-                background: rgba(30, 64, 175, 0.05);
-            }
-            /* ==== 모달 스타일 ==== */
-            .modal-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.8);
+
+            .controls {
                 display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 10000;
-                opacity: 0;
-                visibility: hidden;
-                transition: all 0.3s ease;
+                gap: 20px;
+                margin-bottom: 30px;
+                flex-wrap: wrap;
             }
-            .modal-overlay.show {
-                opacity: 1;
-                visibility: visible;
+
+            .search-box {
+                flex: 1;
+                min-width: 300px;
             }
-            .modal-content {
-                background: #fff;
+
+            .search-box input {
+                width: 100%;
+                padding: 12px 20px;
+                border: none;
+                border-radius: 25px;
+                background: rgba(255, 255, 255, 0.9);
+                font-size: 16px;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            }
+
+            .filter-box {
+                min-width: 200px;
+            }
+
+            .filter-box select {
+                width: 100%;
+                padding: 12px 20px;
+                border: none;
+                border-radius: 25px;
+                background: rgba(255, 255, 255, 0.9);
+                font-size: 16px;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                cursor: pointer;
+            }
+
+            .employee-count {
+                text-align: center;
+                color: white;
+                font-size: 18px;
+                margin-bottom: 30px;
+            }
+
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 24px;
+            }
+
+            .card {
+                background: rgba(255, 255, 255, 0.95);
                 border-radius: 16px;
                 padding: 20px;
-                max-width: 90vw;
-                max-height: 90vh;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                transition: all 0.3s ease;
+                cursor: pointer;
                 position: relative;
-                transform: scale(0.8);
+                overflow: hidden;
+                animation: cardGlow 3s ease-in-out infinite;
+            }
+
+            @keyframes cardGlow {
+                0%,
+                100% {
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                }
+                50% {
+                    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3),
+                        0 0 20px rgba(102, 126, 234, 0.2);
+                }
+            }
+
+            .card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+            }
+
+            .card-image {
+                width: 100%;
+                height: 200px;
+                border-radius: 12px;
+                object-fit: cover;
+                margin-bottom: 16px;
                 transition: transform 0.3s ease;
             }
-            .modal-overlay.show .modal-content {
-                transform: scale(1);
+
+            .card:hover .card-image {
+                transform: scale(1.05);
             }
-            .modal-image {
-                max-width: 100%;
-                max-height: 70vh;
-                border-radius: 8px;
-                display: block;
+
+            .card-info {
+                text-align: center;
             }
-            .modal-close {
-                position: absolute;
-                top: -10px;
-                right: -10px;
-                width: 30px;
-                height: 30px;
-                background: #ef4444;
-                color: white;
-                border: none;
-                border-radius: 50%;
-                cursor: pointer;
+
+            .card-name {
                 font-size: 18px;
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 4px;
+            }
+
+            .card-position {
+                font-size: 14px;
+                color: #666;
+                margin-bottom: 2px;
+            }
+
+            .card-department {
+                font-size: 12px;
+                color: #888;
+                font-weight: 500;
+            }
+
+            .department-row {
+                margin-bottom: 40px;
+            }
+
+            .department-header {
+                background: rgba(255, 255, 255, 0.1);
+                padding: 12px 20px;
+                border-radius: 8px;
+                margin-bottom: 16px;
                 display: flex;
                 align-items: center;
-                justify-content: center;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            }
-            .modal-close:hover {
-                background: #dc2626;
-            }
-            .org-dept {
-                position: relative;
-                z-index: 1; /* 클릭 방해 방지 */
+                justify-content: space-between;
+                cursor: pointer;
+                transition: all 0.3s ease;
             }
 
-            .org-dept::before {
-                content: "";
+            .department-header:hover {
+                background: rgba(255, 255, 255, 0.15);
+            }
+
+            .department-title {
+                color: white;
+                font-size: 18px;
+                font-weight: 600;
+            }
+
+            .department-count {
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 14px;
+                background: rgba(255, 255, 255, 0.2);
+                padding: 4px 12px;
+                border-radius: 12px;
+            }
+
+            .department-toggle {
+                color: white;
+                font-size: 20px;
+                transition: transform 0.3s ease;
+                margin-left: 12px;
+            }
+
+            .department-toggle.collapsed {
+                transform: rotate(-90deg);
+            }
+
+            .department-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 20px;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .department-grid.collapsed {
+                max-height: 0;
+                margin: 0;
+                opacity: 0;
+            }
+
+            .hover-overlay {
                 position: absolute;
-                top: -8px;
-                bottom: -8px;
-                left: -8px;
-                right: -8px;
-                z-index: -1;
-                pointer-events: none;
+                top: 20px;
+                left: 20px;
+                right: 20px;
+                bottom: 76px;
+                background: rgba(0, 0, 0, 0.7);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                border-radius: 12px;
             }
 
-            /* 모바일용 - 툴팁 아래로 띄우기 (필요시) */
-            @media (prefers-color-scheme: white) {
-                body {
-                    background-color: #1a1a1a;
-                    color: #f0f0f0;
-                }
-                .org-btn-allopen {
-                    background: linear-gradient(
-                        92deg,
-                        #446ee7 60%,
-                        #2fb8ff 100%
-                    );
-                    color: #ffffff;
-                }
-                .org-btn-allopen:hover {
-                    background: linear-gradient(
-                        92deg,
-                        #3058c8 60%,
-                        #1ca1e0 100%
-                    );
-                }
-
-                .org-center,
-                .org-dept,
-                .org-member {
-                    background-color: #2a2a2a;
-                    color: #e0e0e0;
-                }
-
-                .org-dept-floor {
-                    background-color: #3a3a3a;
-                    color: #71c9ff;
-                }
-
-                .org-dept-count {
-                    background-color: #3c4c70;
-                    color: #ffffff;
-                }
-
-                .profile-tooltip {
-                    background-color: #2a2a2a;
-                    border-color: #4a6ff0;
-                }
-
-                .profile-name {
-                    background-color: #3a3a3a;
-                    color: #e0e0e0;
-                }
+            .hover-text {
+                color: white;
+                font-weight: 600;
+                font-size: 14px;
+                background: rgba(255, 255, 255, 0.2);
+                padding: 8px 16px;
+                border-radius: 20px;
             }
+
+            .card:hover .hover-overlay {
+                display: flex;
+            }
+
             @media (max-width: 768px) {
-                .org-btn-allopen {
-                    display: none;
-                }
-                .org-total-count {
-                    display: none;
-                }
-                .org-level {
-                    display: flex;
+                .controls {
                     flex-direction: column;
-                    align-items: center;
-                    gap: 20px;
-                    /* 모바일 스크롤 개선 */
-                    -webkit-overflow-scrolling: touch;
-                    scrollbar-width: none;
-                    -ms-overflow-style: none;
                 }
-                .org-level::-webkit-scrollbar {
-                    display: none;
+                .department-header {
+                    padding: 10px 16px;
+                    flex-direction: column;
+                    gap: 8px;
+                    text-align: center;
                 }
-                /* 모바일에서 부서 카드 크기 조정 */
-                .org-dept {
-                    min-width: 200px;
-                    max-width: 280px;
-                    padding: 12px;
+                .department-title {
+                    font-size: 16px;
                 }
-                /* 모바일에서 섹션 패딩 조정 */
-                .org-section {
-                    padding: 20px 10px 0 10px;
+                .department-toggle {
+                    font-size: 18px;
                 }
-                /* 모바일에서 프로필 이미지 크기 조정 */
-                .profile-image {
-                    width: 80px;
-                    height: 80px;
+                .department-grid {
+                    grid-template-columns: repeat(
+                        auto-fill,
+                        minmax(250px, 1fr)
+                    );
                 }
-                .profile-tooltip {
-                    min-width: 100px;
+                .grid {
+                    grid-template-columns: repeat(
+                        auto-fill,
+                        minmax(250px, 1fr)
+                    );
                 }
             }
-            @media (max-width: 600px) and (min-width: 769px) {
-                .org-level {
-                    grid-template-columns: repeat(2, 1fr);
-                }
+
+            .sparkle-text {
+                display: inline-block;
+                background: linear-gradient(
+                    90deg,
+                    #fffbe6 0%,
+                    #ffe066 40%,
+                    #fffbe6 100%
+                );
+                background-size: 200% auto;
+                color: #fff;
+                font-weight: bold;
+                padding: 4px 16px;
+                border-radius: 16px;
+                animation: sparkleText 4s linear infinite;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
             }
-            @media (max-width: 480px) {
-                .org-level {
-                    flex-direction: column;
-                    gap: 15px;
+            @keyframes sparkleText {
+                0% {
+                    background-position: 0% 50%;
                 }
-                .org-dept {
-                    min-width: 180px;
-                    max-width: 260px;
-                    padding: 10px;
-                }
-                .org-dept-title {
-                    font-size: 0.9em;
-                }
-                .org-member {
-                    font-size: 0.9em;
-                    padding: 6px 6px;
-                }
-                /* 모바일에서 프로필 이미지 크기 조정 */
-                .profile-image {
-                    width: 70px;
-                    height: 70px;
-                }
-                .profile-tooltip {
-                    min-width: 90px;
+                100% {
+                    background-position: 200% 50%;
                 }
             }
         </style>
     </head>
     <body>
-        <div class="org-section" id="main-org">
-            <div class="org-total-count" id="totalCount"></div>
-            <div class="org-header-action">
-                <button class="org-btn-allopen" id="orgAllOpenBtn">
-                    한번에 확인하기
-                </button>
+        <div class="container">
+            <div class="header">
+                <p class="sparkle-text">클릭하면 원본 사진을 볼 수 있어요!</p>
             </div>
-            <div class="org-tree" id="org-tree"></div>
+
+            <div class="controls">
+                <div class="search-box">
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="이름 또는 직급으로 검색..."
+                    />
+                </div>
+                <div class="filter-box">
+                    <select id="departmentFilter">
+                        <option value="전체">전체 부서</option>
+                        <option value="경영관리실">경영관리실</option>
+                        <option value="전략기획실">전략기획실</option>
+                        <option value="Aptamil사업부">Aptamil사업부</option>
+                        <option value="Dreame사업부">Dreame사업부</option>
+                        <option value="컨텐츠팀">컨텐츠팀</option>
+                        <option value="고객지원부">고객지원부</option>
+                        <option value="물류센터">물류센터</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="employee-count" id="employeeCount">총 62명의 직원</div>
+
+            <div class="grid" id="employeeGrid">
+                <!-- 직원 카드들이 여기에 동적으로 생성됩니다 -->
+            </div>
         </div>
 
-        <!-- 모달 오버레이 -->
-        <div class="modal-overlay" id="modalOverlay">
-            <div class="modal-content">
-                <button class="modal-close" id="modalClose">&times;</button>
+        <!-- 이미지 모달 -->
+        <div
+            id="imageModal"
+            style="
+                display: none;
+                position: fixed;
+                z-index: 9999;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.7);
+                align-items: center;
+                justify-content: center;
+            "
+        >
+            <div
+                style="
+                    position: relative;
+                    max-width: 90vw;
+                    max-height: 90vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                "
+            >
                 <img
-                    class="modal-image"
-                    id="modalImage"
+                    id="modalImg"
                     src=""
-                    alt="프로필 이미지"
+                    alt="원본 이미지"
+                    style="
+                        max-width: 90vw;
+                        max-height: 80vh;
+                        border-radius: 16px;
+                        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                        background: #fff;
+                    "
                 />
+                <button
+                    id="closeModalBtn"
+                    style="
+                        position: absolute;
+                        top: 8px;
+                        right: 8px;
+                        font-size: 2rem;
+                        background: rgba(0, 0, 0, 0.5);
+                        color: #fff;
+                        border: none;
+                        border-radius: 50%;
+                        width: 40px;
+                        height: 40px;
+                        cursor: pointer;
+                    "
+                >
+                    &times;
+                </button>
             </div>
         </div>
 
         <script>
-            // ===== 모바일 스크롤 개선 =====
-            function fixMobileScroll() {
-                // iOS Safari 스크롤 개선
-                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-                    document.body.style.webkitOverflowScrolling = "touch";
-                }
-
-                // Android Chrome 스크롤 개선
-                if (/Android/.test(navigator.userAgent)) {
-                    document.body.style.overflowScrolling = "touch";
-                }
-
-                // iframe 내부 스크롤 개선
-                if (window.self !== window.top) {
-                    document.body.style.height = "auto";
-                    document.body.style.minHeight = "100vh";
-                    document.body.style.overflow = "visible";
-                    document.documentElement.style.overflow = "visible";
-                }
-            }
-
-            // 페이지 로드 시 스크롤 개선 적용
-            document.addEventListener("DOMContentLoaded", fixMobileScroll);
-            window.addEventListener("load", fixMobileScroll);
-
-            // ===== 조직도 데이터 =====
-            // 💡 순서 변경 방법:
-            // 1. 부서 순서: depts 배열에서 항목 순서를 바꾸세요
-            // 2. 멤버 순서: 각 부서의 members 배열에서 항목 순서를 바꾸세요 (사원 > 수습 순)
-            // 3. 인원 수는 자동으로 계산되므로 count는 수정하지 마세요
-            // 4. 프로필 이미지: 각 멤버의 image 필드에 이미지 URL을 추가하세요
-
+            // 실제 조직 데이터
             const orgData = {
                 root: {
                     name: "대표이사 강필구",
@@ -611,8 +411,8 @@
                         floor: "2F",
                         members: [
                             {
-                                name: "손광익 (부대표)",
-                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=손광익",
+                                name: "강필구 (대표이사)",
+                                image: "https://via.placeholder.com/200x200/1e40af/ffffff?text=강필구",
                             },
                             {
                                 name: "신선일 (이사)",
@@ -655,14 +455,15 @@
                                 image: "https://via.placeholder.com/200x200/10b981/ffffff?text=강병현",
                             },
                             {
-                                name: "지윤환 (수습)",
+                                name: "지윤환 (과장)",
                                 image: "people/지윤환.png",
+                                motto: "다 계획이 있eibe ",
                             },
                         ],
                     },
                     // === 3: 핵심 사업부 ===
                     {
-                        title: "브랜드사업부(압타밀)",
+                        title: "Aptamil사업부",
                         count: 18,
                         floor: "2F",
                         members: [
@@ -740,13 +541,13 @@
                             },
                             {
                                 name: "조성익 (수습)",
-                                image: "https://via.placeholder.com/200x200/06b6d4/ffffff?text=박종호",
+                                image: "https://via.placeholder.com/200x200/06b6d4/ffffff?text=조성익",
                             },
                         ],
                     },
                     // === 4: 사업부 2 ===
                     {
-                        title: "브랜드사업부(드리미)",
+                        title: "Dreame사업부",
                         count: 16,
                         floor: "4F",
                         members: [
@@ -868,7 +669,7 @@
                             },
                             {
                                 name: "최윤민(수습)",
-                                image: "https://via.placeholder.com/200x200/8b5cf6/ffffff?text=장주현",
+                                image: "https://via.placeholder.com/200x200/8b5cf6/ffffff?text=최윤민",
                             },
                         ],
                     },
@@ -907,244 +708,216 @@
                 ],
             };
 
-            // ===== 자동 인원 수 계산 함수 =====
-            function updateMemberCounts() {
-                orgData.depts.forEach((dept) => {
-                    dept.count = dept.members.length;
-                });
-            }
-
-            // ===== 총원 계산 및 표시 함수 =====
-            function updateTotalCount() {
-                const totalMembers = orgData.depts.reduce((total, dept) => {
-                    return total + dept.members.length;
-                }, 0);
-
-                // 대표이사 포함하여 총원 계산
-                const grandTotal = totalMembers + 1; // 대표이사 1명 추가
-
-                const totalCountElement = document.getElementById("totalCount");
-                totalCountElement.textContent = `총원 ${grandTotal}명`;
-
-                // 애니메이션 효과 추가
-                totalCountElement.style.transform = "scale(1.05)";
-                setTimeout(() => {
-                    totalCountElement.style.transform = "scale(1)";
-                }, 200);
-            }
-
-            // ===== 모달 기능 =====
-            function showModal(imageSrc) {
-                const modal = document.getElementById("modalOverlay");
-                const modalImage = document.getElementById("modalImage");
-                modalImage.src = imageSrc;
-                modal.classList.add("show");
-                document.body.style.overflow = "hidden";
-            }
-
-            function hideModal() {
-                const modal = document.getElementById("modalOverlay");
-                modal.classList.remove("show");
-                document.body.style.overflow = "auto";
-            }
-
-            // ===== 대표이사 렌더링 함수 =====
-            function renderCEO() {
-                const tree = document.getElementById("org-tree");
-                tree.innerHTML = `
-                    <div class="org-center" style="cursor: pointer;">
-                        <span>${orgData.root.name}</span>
-                        ${
-                            orgData.root.floor
-                                ? `<br><span class="org-dept-floor">${orgData.root.floor}</span>`
-                                : ""
-                        }
+            // 직원 카드 HTML 생성
+            function createEmployeeCard(member) {
+                return `
+                <div class="card">
+                    <img src="${member.image}" alt="${
+                    member.name
+                }" class="card-image" 
+                         data-original="${member.image}">
+                    <div class="hover-overlay">
+                        <span class="hover-text">${
+                            member.motto ? member.motto : "원본 보기"
+                        }</span>
                     </div>
-                `;
-
-                // 대표이사 클릭 이벤트 추가
-                const centerElement = tree.querySelector(".org-center");
-                centerElement.addEventListener("click", () => {
-                    showModal(orgData.root.image);
-                });
+                    <div class="card-info">
+                        <div class="card-name">${member.name}</div>
+                    </div>
+                </div>
+            `;
             }
 
-            // ===== 부서 렌더링 함수 =====
-            function renderDepartments() {
-                const tree = document.getElementById("org-tree");
-                const levelDiv = document.createElement("div");
-                levelDiv.className = "org-level";
-                const allDeptDivs = [];
+            // 직원 그리드 렌더링
+            function renderEmployees() {
+                const grid = document.getElementById("employeeGrid");
+                const count = document.getElementById("employeeCount");
+                const selectedDepartment =
+                    document.getElementById("departmentFilter").value;
 
-                orgData.depts.forEach((dept) => {
-                    const wrapperDiv = document.createElement("div");
-                    wrapperDiv.className = "org-dept-wrapper";
-
-                    const deptDiv = document.createElement("div");
-                    deptDiv.className = "org-dept";
-
-                    const floorDiv = document.createElement("div");
-                    floorDiv.className = "org-dept-floor";
-                    floorDiv.innerText = dept.floor;
-                    deptDiv.appendChild(floorDiv);
-
-                    const titleDiv = document.createElement("div");
-                    titleDiv.className = "org-dept-title";
-                    titleDiv.innerHTML = `${dept.title}<span class="org-dept-count">${dept.count}명</span>`;
-                    deptDiv.appendChild(titleDiv);
-
-                    deptDiv.addEventListener("click", () => {
-                        deptDiv.classList.toggle("open");
+                if (selectedDepartment === "전체") {
+                    // 전체 보기일 때는 팀별로 그룹화
+                    const filteredDepts = orgData.depts.filter((dept) => {
+                        const searchTerm = document
+                            .getElementById("searchInput")
+                            .value.toLowerCase();
+                        if (searchTerm) {
+                            return dept.members.some((member) =>
+                                member.name.toLowerCase().includes(searchTerm)
+                            );
+                        }
+                        return true;
                     });
 
-                    const memDiv = document.createElement("div");
-                    memDiv.className = "org-member-list";
-                    dept.members.forEach((member) => {
-                        const memItem = document.createElement("div");
-                        memItem.className = "org-member";
-                        memItem.innerHTML = `
-                            ${member.name}
-                            <div class="profile-tooltip">
-                                <img class="profile-image" src="${member.image}" alt="${member.name}" loading="lazy">
-                                <div class="profile-name">${member.name}</div>
+                    grid.innerHTML = createGroupedHTML(filteredDepts);
+                    const totalMembers = filteredDepts.reduce(
+                        (sum, dept) => sum + dept.members.length,
+                        0
+                    );
+                    count.textContent = `총 ${totalMembers}명의 직원`;
+                } else {
+                    // 특정 팀 선택 시에는 해당 팀만 표시
+                    const selectedDept = orgData.depts.find(
+                        (dept) => dept.title === selectedDepartment
+                    );
+                    if (selectedDept) {
+                        const searchTerm = document
+                            .getElementById("searchInput")
+                            .value.toLowerCase();
+                        const filteredMembers = searchTerm
+                            ? selectedDept.members.filter((member) =>
+                                  member.name.toLowerCase().includes(searchTerm)
+                              )
+                            : selectedDept.members;
+
+                        grid.innerHTML = filteredMembers
+                            .map(createEmployeeCard)
+                            .join("");
+                        count.textContent = `총 ${filteredMembers.length}명의 직원`;
+                    }
+                }
+            }
+
+            // 직원들을 팀별로 그룹화
+            function groupEmployeesByDepartment(employeeList) {
+                const grouped = {};
+                employeeList.forEach((employee) => {
+                    if (!grouped[employee.department]) {
+                        grouped[employee.department] = [];
+                    }
+                    grouped[employee.department].push(employee);
+                });
+                return grouped;
+            }
+
+            // 그룹화된 HTML 생성
+            function createGroupedHTML(depts) {
+                let html = "";
+
+                depts.forEach((dept) => {
+                    const searchTerm = document
+                        .getElementById("searchInput")
+                        .value.toLowerCase();
+                    const filteredMembers = searchTerm
+                        ? dept.members.filter((member) =>
+                              member.name.toLowerCase().includes(searchTerm)
+                          )
+                        : dept.members;
+
+                    if (filteredMembers.length > 0) {
+                        html += `
+                            <div class="department-row">
+                                <div class="department-header" onclick="toggleDepartment(this)">
+                                    <div style="display: flex; align-items: center;">
+                                        <div class="department-title">${
+                                            dept.title
+                                        }</div>
+                                        <div class="department-toggle collapsed">▼</div>
+                                    </div>
+                                    <div class="department-count">${
+                                        filteredMembers.length
+                                    }명 (${dept.floor})</div>
+                                </div>
+                                <div class="department-grid collapsed">
+                                    ${filteredMembers
+                                        .map(createEmployeeCard)
+                                        .join("")}
+                                </div>
                             </div>
                         `;
-
-                        // 클릭 이벤트 추가 (모달 열기)
-                        memItem.addEventListener("click", (e) => {
-                            e.stopPropagation();
-                            // 부서가 열려있을 때만 모달 표시
-                            const parentDept = memItem
-                                .closest(".org-dept-wrapper")
-                                .querySelector(".org-dept");
-                            if (parentDept.classList.contains("open")) {
-                                showModal(member.image);
-                            }
-                        });
-
-                        memDiv.appendChild(memItem);
-                    });
-
-                    wrapperDiv.appendChild(deptDiv);
-                    wrapperDiv.appendChild(memDiv);
-                    levelDiv.appendChild(wrapperDiv);
-                    allDeptDivs.push(deptDiv);
-                });
-
-                tree.appendChild(levelDiv);
-                return allDeptDivs;
-            }
-
-            // ===== DOM 렌더링 =====
-            renderCEO();
-            const allDeptDivs = renderDepartments();
-
-            // ===== 이벤트 리스너 =====
-            document
-                .getElementById("orgAllOpenBtn")
-                .addEventListener("click", function () {
-                    const isAnyClosed = allDeptDivs.some(
-                        (div) => !div.classList.contains("open")
-                    );
-                    allDeptDivs.forEach((div) => {
-                        div.classList.toggle("open", isAnyClosed);
-                    });
-                    this.textContent = isAnyClosed
-                        ? "전체 닫기"
-                        : "한번에 확인하기";
-                });
-
-            // 모달 닫기 이벤트
-            document
-                .getElementById("modalClose")
-                .addEventListener("click", hideModal);
-            document
-                .getElementById("modalOverlay")
-                .addEventListener("click", (e) => {
-                    if (e.target.id === "modalOverlay") {
-                        hideModal();
                     }
                 });
 
-            // ESC 키로 모달 닫기
-            document.addEventListener("keydown", (e) => {
-                if (e.key === "Escape") {
-                    hideModal();
-                }
-            });
-
-            // ===== 모바일 툴팁 처리 =====
-            function isTouchDevice() {
-                return (
-                    "ontouchstart" in window ||
-                    (window.DocumentTouch &&
-                        document instanceof DocumentTouch) ||
-                    navigator.maxTouchPoints > 0 ||
-                    window.matchMedia("(pointer: coarse)").matches
-                );
+                return html;
             }
 
-            // ===== 대표이사 툴팁 처리 =====
-            function handleCEOTooltip() {
-                const center = document.querySelector(".org-center");
-                if (center) {
-                    center.classList.add("show-profile");
-                    setTimeout(
-                        () => center.classList.remove("show-profile"),
-                        3000
-                    );
+            // 팀 접기/펼치기 토글 함수
+            function toggleDepartment(header) {
+                const grid = header.nextElementSibling;
+                const toggle = header.querySelector(".department-toggle");
+
+                if (grid.classList.contains("collapsed")) {
+                    // 펼치기
+                    grid.classList.remove("collapsed");
+                    toggle.classList.remove("collapsed");
+                } else {
+                    // 접기
+                    grid.classList.add("collapsed");
+                    toggle.classList.add("collapsed");
                 }
             }
 
-            // ===== 부서 멤버 툴팁 처리 =====
-            function handleMemberTooltip(member) {
-                const members = document.querySelectorAll(".org-member");
-                members.forEach((m) => m.classList.remove("show-profile"));
-
-                member.classList.add("show-profile");
-                setTimeout(() => member.classList.remove("show-profile"), 3000);
+            // 검색 및 필터링
+            function filterEmployees() {
+                renderEmployees();
             }
 
-            if (isTouchDevice()) {
-                const tree = document.getElementById("org-tree");
-                tree.addEventListener("click", function (e) {
-                    const member = e.target.closest(".org-member");
-                    const centerElement = e.target.closest(".org-center");
-                    const deptElement = e.target.closest(".org-dept");
+            // 이벤트 리스너 등록
+            document
+                .getElementById("searchInput")
+                .addEventListener("input", filterEmployees);
+            document
+                .getElementById("departmentFilter")
+                .addEventListener("change", filterEmployees);
 
-                    // 부서 카드 클릭 시에는 툴팁 처리하지 않음
-                    if (deptElement) {
-                        return;
+            // 호버 시 이미지 변경
+            document.addEventListener("DOMContentLoaded", function () {
+                renderEmployees();
+
+                // 호버 이벤트 처리
+                document.addEventListener("mouseover", function (e) {
+                    if (e.target.classList.contains("card-image")) {
+                        const originalSrc =
+                            e.target.getAttribute("data-original");
+                        e.target.src = originalSrc;
                     }
+                });
 
-                    if (member) {
-                        // 부서가 열려있을 때만 툴팁 표시
-                        const parentDept = member
-                            .closest(".org-dept-wrapper")
-                            .querySelector(".org-dept");
-                        if (parentDept.classList.contains("open")) {
-                            handleMemberTooltip(member);
+                document.addEventListener("mouseout", function (e) {
+                    if (e.target.classList.contains("card-image")) {
+                        const originalSrc =
+                            e.target.getAttribute("data-original");
+                        e.target.src = originalSrc;
+                    }
+                });
+
+                // 이미지, 오버레이, 텍스트 모두 허용
+                document.addEventListener("click", function (e) {
+                    // 이미지, 오버레이, 텍스트 모두 허용
+                    if (
+                        e.target.classList.contains("card-image") ||
+                        e.target.classList.contains("hover-overlay") ||
+                        e.target.classList.contains("hover-text")
+                    ) {
+                        // 실제 이미지를 찾아서 src를 얻음
+                        let imgElem;
+                        if (e.target.classList.contains("card-image")) {
+                            imgElem = e.target;
+                        } else {
+                            // 오버레이나 텍스트 클릭 시, 부모 카드에서 이미지 찾기
+                            imgElem = e.target
+                                .closest(".card")
+                                .querySelector(".card-image");
                         }
-                    } else if (centerElement) {
-                        handleCEOTooltip();
+                        const src =
+                            imgElem.getAttribute("data-original") ||
+                            imgElem.src;
+                        const modal = document.getElementById("imageModal");
+                        const modalImg = document.getElementById("modalImg");
+                        modalImg.src = src;
+                        modal.style.display = "flex";
                     }
                 });
-            }
-
-            // ===== 초기화 =====
-            updateMemberCounts();
-            updateTotalCount();
-
-            // ===== 추가 모바일 스크롤 개선 =====
-            // 페이지 로드 후 약간의 지연을 두고 스크롤 강제 활성화
-            setTimeout(() => {
-                fixMobileScroll();
-                // iframe 내부에서는 스크롤 강제 활성화 제거
-                if (window.self === window.top) {
-                    window.scrollTo(0, 1);
-                    setTimeout(() => window.scrollTo(0, 0), 100);
-                }
-            }, 500);
+                // 모달 닫기 버튼
+                document.getElementById("closeModalBtn").onclick = function () {
+                    document.getElementById("imageModal").style.display =
+                        "none";
+                };
+                // 모달 바깥 클릭 시 닫기
+                document.getElementById("imageModal").onclick = function (e) {
+                    if (e.target === this) this.style.display = "none";
+                };
+            });
         </script>
     </body>
 </html>
